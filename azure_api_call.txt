@@ -1,0 +1,8 @@
+
+
+curl -v -X POST -H "Content-Type: application/x-www-form-urlencoded" https://login.microsoftonline.com/f1f67c7a-cd5c-4c12-aa90-7346420eb48a/oauth2/token -d "grant_type=client_credentials&client_id=3fd69f2a-0099-4a2c-a132-15586a881fab&client_secret=m1ttXHzuy4LR8kkLsdrzGPkY7B7I5uz7IPI6OSBj6Bo=&resource=https://management.core.windows.net/"
+
+
+
+curl -v  -H "Authorization: Bearer $AZURE_TOKEN" https://management.azure.com/subscriptions/81d06019-11b8-4f01-9616-f79ee1648ffe/resourceGroups/rundecktest/providers/Microsoft.Compute/virtualmachines?api-version=2016-04-30-preview
+
