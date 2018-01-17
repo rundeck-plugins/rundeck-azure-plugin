@@ -18,6 +18,9 @@ class AzureManagerBuilder {
     boolean onlyRunningInstances
     Region region
 
+    boolean debug
+
+
     static AzureManagerBuilder builder() {
         return new AzureManagerBuilder()
     }
@@ -103,7 +106,18 @@ class AzureManagerBuilder {
         return this
     }
 
+    /**
+     * @param onlyRunningInstances Only Running instances
+     * @return this builder
+     */
+    AzureManagerBuilder debug(boolean debug){
+        this.debug = debug
+        return this
+    }
+
+
     AzureManager build(){
+
         AzureManager azure = new AzureManager()
         azure.setClientId(this.clientId)
         azure.setTenantId(this.tenantId)
@@ -113,6 +127,7 @@ class AzureManagerBuilder {
         azure.setPfxCertificatePassword(this.pfxCertificatePassword)
         azure.setResourceGroup(this.resourceGroup)
         azure.setOnlyRunningInstances(this.onlyRunningInstances)
+        azure.setDebug(debug)
 
         return azure
     }

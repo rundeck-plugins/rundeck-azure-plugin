@@ -2,7 +2,6 @@ package com.rundeck.plugins.azure.azure
 
 import com.microsoft.azure.management.compute.VirtualMachine
 import com.microsoft.azure.management.compute.VirtualMachineSize
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 class AzureNode {
 
@@ -28,23 +27,21 @@ class AzureNode {
 
         this.size = size
         //basic attributes
-        this.name = vm.osProfile().computerName()
-        this.username = vm.osProfile().adminUsername()
+        this.name = vm.osProfile()?.computerName()
+        this.username = vm.osProfile()?.adminUsername()
 
-        if(vm.getPrimaryPublicIPAddress()!=null){
-            this.hostname = vm.getPrimaryPublicIPAddress().ipAddress ( )
-        }
+        this.hostname = vm.getPrimaryPublicIPAddress()?.ipAddress ( )
 
         if(this.hostname==null){
             //the offline machines doesn't have a IP selected
             this.hostname = "undefined"
         }
 
-        this.osFamily = vm.storageProfile ( ).osDisk ( ).osType ( ).toString()
-        this.osName = vm.storageProfile ( ).imageReference ( ).offer ( ).toString()
-        this.osVersion = vm.storageProfile ( ).imageReference ( ).sku ( ).toString()
+        this.osFamily = vm.storageProfile()?.osDisk()?.osType()?.toString()
+        this.osName = vm.storageProfile()?.imageReference()?.offer()?.toString()
+        this.osVersion = vm.storageProfile()?.imageReference()?.sku()?.toString()
 
-        String osEdition = vm.size().toString()
+        String osEdition = vm.size()?.toString()
 
         description ="Azure VM " + this.osName  + " " + osEdition
 
@@ -66,9 +63,9 @@ class AzureNode {
 
         azureAttributes.id = vm.id()
         azureAttributes.vmId = vm.vmId()
-        azureAttributes.region = vm.region().name()
+        azureAttributes.region = vm.region()?.name()
         azureAttributes.resourceGroup = vm.resourceGroupName()
-        azureAttributes.status = vm.powerState().toString().replace("PowerState/","")
+        azureAttributes.status = vm.powerState()?.toString().replace("PowerState/","")
 
         if(vm.plan()!=null){
             azureAttributes."plan:name" = vm.plan().name()
@@ -82,22 +79,22 @@ class AzureNode {
         azureAttributes."size:maxDataDiskCount" = size.maxDataDiskCount()
         azureAttributes."size:resourceDiskSizeInMB" = size.resourceDiskSizeInMB()
 
-        azureAttributes."image:type" = vm.storageProfile().imageReference().publisher().toString()
-        azureAttributes."image:offer" = vm.storageProfile().imageReference().offer().toString()
-        azureAttributes."image:sku" = vm.storageProfile().imageReference().sku().toString()
-        azureAttributes."image:version" = vm.storageProfile().imageReference().version().toString()
+        azureAttributes."image:type" = vm.storageProfile()?.imageReference()?.publisher()?.toString()
+        azureAttributes."image:offer" = vm.storageProfile()?.imageReference()?.offer()?.toString()
+        azureAttributes."image:sku" = vm.storageProfile()?.imageReference()?.sku()?.toString()
+        azureAttributes."image:version" = vm.storageProfile()?.imageReference()?.version()?.toString()
 
-        azureAttributes."osDisk:osType" = vm.storageProfile().osDisk().osType().toString()
-        azureAttributes."osDisk:name" = vm.storageProfile().osDisk().name().toString()
-        azureAttributes."osDisk:createOption" = vm.storageProfile().osDisk().createOption().toString()
-        azureAttributes."osDisk:diskSizeGB" = vm.storageProfile().osDisk().diskSizeGB().toString()
+        azureAttributes."osDisk:osType" = vm.storageProfile()?.osDisk()?.osType()?.toString()
+        azureAttributes."osDisk:name" = vm.storageProfile()?.osDisk()?.name()?.toString()
+        azureAttributes."osDisk:createOption" = vm.storageProfile()?.osDisk()?.createOption()?.toString()
+        azureAttributes."osDisk:diskSizeGB" = vm.storageProfile()?.osDisk()?.diskSizeGB()?.toString()
 
         if(vm.instanceView().vmAgent()!=null) {
-            vm.instanceView().vmAgent().statuses().each { status->
+            vm.instanceView().vmAgent().statuses()?.each { status->
                 azureAttributes."provisioningState:code" = status.code()
                 azureAttributes."provisioningState:displayStatus" = status.displayStatus()
                 azureAttributes."provisioningState:message" = status.message()
-                azureAttributes."provisioningState:time" = status.time().toString()
+                azureAttributes."provisioningState:time" = status.time()?.toString()
             }
         }
     }

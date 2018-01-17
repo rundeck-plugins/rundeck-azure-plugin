@@ -42,10 +42,11 @@ class AzureResourceModelSource  implements ResourceModelSource {
         boolean onlyRunningInstances=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.RUNNING_ONLY))
         String extraMapping=configuration.getProperty(AzureResourceModelSourceFactory.EXTRA_MAPPING)
 
+        boolean debug=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.DEBUG))
+
         if(key == null && pfxCertificatePath == null){
             throw new IllegalArgumentException("You must set the key or the certificate path in order to authenticate");
         }
-
 
         if(manager==null) {
             manager = AzureManagerBuilder.builder()
@@ -57,6 +58,7 @@ class AzureResourceModelSource  implements ResourceModelSource {
                     .pfxCertificatePassword(pfxCertificatePassword)
                     .resourceGroup(resourceGroup)
                     .onlyRunningInstances(onlyRunningInstances)
+                    .debug(debug)
                     .build()
         }
 

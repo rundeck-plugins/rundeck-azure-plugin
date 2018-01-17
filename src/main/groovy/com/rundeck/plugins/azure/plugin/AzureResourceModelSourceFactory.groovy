@@ -43,6 +43,8 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
     public static final String RESOURCE_GROUP = "resourceGroup"
     public static final String RUNNING_ONLY = "onlyRunningInstances"
 
+    public static final String DEBUG = "debugVm"
+
     final static Map<String, Object> renderingOptionsAuthentication = AzurePluginUtil.getRenderOpt("Credentials",false)
     final static Map<String, Object> renderingOptionsAuthenticationPassword = AzurePluginUtil.getRenderOpt("Credentials",false, true)
     final static Map<String, Object> renderingOptionsConfig = AzurePluginUtil.getRenderOpt("Configuration",false)
@@ -76,6 +78,10 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
             .property(PropertyUtil.bool(RUNNING_ONLY, "Only Running Instances",
             "Include Running state instances only. If false, all instances will be returned that match your " +
                     "filters.",
+            false, "false", null,renderingOptionsConfig))
+
+            .property(PropertyUtil.bool(DEBUG, "Debug VM info",
+            "Get the VM data on rundeck's log",
             false, "false", null,renderingOptionsConfig))
             .build()
 

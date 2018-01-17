@@ -20,11 +20,14 @@ import com.microsoft.azure.management.resources.fluentcore.arm.models.GroupableR
 import com.microsoft.azure.management.resources.fluentcore.utils.SdkContext
 import com.rundeck.plugins.azure.util.AzurePluginUtil
 import groovy.json.JsonOutput
+import org.apache.log4j.Logger
 
 /**
  * Created by luistoledo on 11/6/17.
  */
 class AzureManager {
+
+    static Logger LOG = Logger.getLogger(AzureManager.class);
 
     String clientId
     String tenantId
@@ -36,6 +39,7 @@ class AzureManager {
     String resourceGroup
     Region region
     boolean onlyRunningInstances
+    boolean debug
 
     Azure azure
 
@@ -65,6 +69,8 @@ class AzureManager {
 
     List<AzureNode> listVms(){
 
+        LOG.info("Chequeando debug3: ${debug}")
+
         this.connect()
 
         def vms = azure.virtualMachines()
@@ -86,7 +92,13 @@ class AzureManager {
 
         List<AzureNode> listNodes = new ArrayList<>()
 
+
+
         list.each { virtualMachine->
+
+            if(debug){
+                println(AzurePluginUtil.printVm(virtualMachine))
+            }
 
             VirtualMachineSize size = azure.virtualMachines().sizes().listByRegion(virtualMachine.region()).find{ size-> size.name().equals(virtualMachine.size().toString())}
 

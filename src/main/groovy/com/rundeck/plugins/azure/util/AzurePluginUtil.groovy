@@ -32,8 +32,6 @@ class AzurePluginUtil {
     static def printVm(VirtualMachine resource) {
         StringBuilder storageProfile = new StringBuilder().append("\n\tStorageProfile: ");
 
-        resource.powerState()
-
         if (resource.getPrimaryPublicIPAddress() != null) {
             storageProfile.append("\n" +
                     "\t\tIP:" + resource.getPrimaryPublicIPAddress().ipAddress())
@@ -43,7 +41,7 @@ class AzurePluginUtil {
         storageProfile.append("\n" +
                 "\t\tVM-ID:" + resource.vmId())
 
-        if (resource.storageProfile().imageReference() != null) {
+        if (resource.storageProfile()?.imageReference() != null) {
             storageProfile.append("\n\t\tImageReference:");
             storageProfile.append("\n\t\t\tPublisher: ").append(resource.storageProfile().imageReference().publisher());
             storageProfile.append("\n\t\t\tOffer: ").append(resource.storageProfile().imageReference().offer());
@@ -51,7 +49,7 @@ class AzurePluginUtil {
             storageProfile.append("\n\t\t\tVersion: ").append(resource.storageProfile().imageReference().version());
         }
 
-        if (resource.storageProfile().osDisk() != null) {
+        if (resource.storageProfile()?.osDisk() != null) {
             storageProfile.append("\n\t\tOSDisk:");
             storageProfile.append("\n\t\t\tOSType: ").append(resource.storageProfile().osDisk().osType());
             storageProfile.append("\n\t\t\tName: ").append(resource.storageProfile().osDisk().name());
@@ -80,7 +78,7 @@ class AzurePluginUtil {
             }
         }
 
-        if (resource.storageProfile().dataDisks() != null) {
+        if (resource.storageProfile()?.dataDisks() != null) {
             int i = 0;
             for (DataDisk disk : resource.storageProfile().dataDisks()) {
                 storageProfile.append("\n\t\tDataDisk: #").append(i++);
@@ -133,7 +131,7 @@ class AzurePluginUtil {
         }
 
         StringBuilder extensions = new StringBuilder().append("\n\tExtensions: ");
-        for (Map.Entry<String, VirtualMachineExtension> extensionEntry : resource.listExtensions().entrySet()) {
+        for (Map.Entry<String, VirtualMachineExtension> extensionEntry : resource.listExtensions()?.entrySet()) {
             VirtualMachineExtension extension = extensionEntry.getValue();
             extensions.append("\n\t\tExtension: ").append(extension.id())
                     .append("\n\t\t\tName: ").append(extension.name())
@@ -168,7 +166,7 @@ class AzurePluginUtil {
                 .append(msi)
                 .append(zones)
 
-        println(vmInfo.toString())
+        return vmInfo.toString()
 
     }
 
