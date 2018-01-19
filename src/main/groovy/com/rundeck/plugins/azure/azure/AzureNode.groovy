@@ -27,14 +27,25 @@ class AzureNode {
 
         this.size = size
         //basic attributes
-        this.name = vm.osProfile()?.computerName()
+
+        this.name = vm.name()
+
+        if(this.name==null){
+           this.name = vm.osProfile()?.computerName()
+        }
+
         this.username = vm.osProfile()?.adminUsername()
 
-        this.hostname = vm.getPrimaryPublicIPAddress()?.ipAddress ( )
+        this.hostname = vm.getPrimaryPublicIPAddress()?.ipAddress()
 
         if(this.hostname==null){
             //the offline machines doesn't have a IP selected
             this.hostname = "undefined"
+        }
+
+        if(this.hostname==null){
+            //the offline machines doesn't have a IP selected
+            this.name = this.name
         }
 
         this.osFamily = vm.storageProfile()?.osDisk()?.osType()?.toString()

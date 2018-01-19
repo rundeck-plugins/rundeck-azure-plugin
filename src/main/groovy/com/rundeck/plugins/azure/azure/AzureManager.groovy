@@ -69,8 +69,6 @@ class AzureManager {
 
     List<AzureNode> listVms(){
 
-        LOG.info("Chequeando debug3: ${debug}")
-
         this.connect()
 
         def vms = azure.virtualMachines()
@@ -97,12 +95,20 @@ class AzureManager {
         list.each { virtualMachine->
 
             if(debug){
+                println ("--------- VM input ---------------")
                 println(AzurePluginUtil.printVm(virtualMachine))
             }
 
             VirtualMachineSize size = azure.virtualMachines().sizes().listByRegion(virtualMachine.region()).find{ size-> size.name().equals(virtualMachine.size().toString())}
 
+
             AzureNode azureNode = new AzureNode(virtualMachine,size)
+
+            if(debug){
+                println ("--------- VM Mapping result ---------------")
+                println(azureNode)
+            }
+
             listNodes.add(azureNode)
         }
 

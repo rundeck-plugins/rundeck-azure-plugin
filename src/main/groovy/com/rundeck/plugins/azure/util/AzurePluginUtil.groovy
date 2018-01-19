@@ -153,7 +153,7 @@ class AzurePluginUtil {
         zones.append(resource.availabilityZones());
 
         StringBuilder vmInfo= new StringBuilder().append("Virtual Machine: ").append(resource.id())
-                .append("Name: ").append(resource.name())
+                .append("\n\tName: ").append(resource.name())
                 .append("\n\tResource group: ").append(resource.resourceGroupName())
                 .append("\n\tRegion: ").append(resource.region())
                 .append("\n\tTags: ").append(resource.tags())
