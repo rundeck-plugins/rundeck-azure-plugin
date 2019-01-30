@@ -6,14 +6,12 @@ import com.dtolabs.rundeck.core.plugins.configuration.ConfigurationException
 import com.dtolabs.rundeck.core.plugins.configuration.Describable
 import com.dtolabs.rundeck.core.plugins.configuration.Description
 import com.dtolabs.rundeck.core.plugins.configuration.PropertyUtil
-import com.dtolabs.rundeck.core.plugins.configuration.StringRenderingConstants
 import com.dtolabs.rundeck.core.resources.ResourceModelSource
 import com.dtolabs.rundeck.core.resources.ResourceModelSourceFactory
 import com.dtolabs.rundeck.plugins.ServiceNameConstants
 import com.dtolabs.rundeck.plugins.descriptions.PluginDescription
 import com.dtolabs.rundeck.plugins.util.DescriptionBuilder
 import com.rundeck.plugins.azure.util.AzurePluginUtil
-
 /**
  * Created by luistoledo on 11/3/17.
  */
@@ -41,6 +39,8 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
 
     //filters
     public static final String RESOURCE_GROUP = "resourceGroup"
+    public static final String TAG_NAME = "tagName"
+    public static final String TAG_VALUE = "tagValue"
     public static final String RUNNING_ONLY = "onlyRunningInstances"
 
     public static final String DEBUG = "debugVm"
@@ -74,6 +74,10 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
             .property(PropertyUtil.string(EXTRA_MAPPING, "Mapping Params", "Property mapping definitions. Specify multiple mappings in the form \"attributeName.selector=selector\" or \"attributeName.default=value\", separated by \";\"", false,
             "tags.selector=azure_status",null,null, renderingOptionsConfig))
             .property(PropertyUtil.string(RESOURCE_GROUP, "Resource Group", "Filter using resource group", false,
+            null,null,null, renderingOptionsConfig))
+            .property(PropertyUtil.string(TAG_NAME, "Tag Name", "Filter using tag name (this value will be ignored if either Tag Name or Tag Value is empty)", false,
+            null,null,null, renderingOptionsConfig))
+            .property(PropertyUtil.string(TAG_VALUE, "Tag Value", "Filter using tag value (this value will be ignored if either Tag Name or Tag Value is empty)", false,
             null,null,null, renderingOptionsConfig))
             .property(PropertyUtil.bool(RUNNING_ONLY, "Only Running Instances",
             "Include Running state instances only. If false, all instances will be returned that match your " +
