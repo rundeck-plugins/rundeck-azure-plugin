@@ -76,7 +76,7 @@ class AzureNode {
         azureAttributes.vmId = vm.vmId()
         azureAttributes.region = vm.region()?.name()
         azureAttributes.resourceGroup = vm.resourceGroupName()
-        azureAttributes.status = vm.powerState()?.toString().replace("PowerState/","")
+        azureAttributes.status = vm.powerState()?.toString()?.replace("PowerState/","")
 
         if(vm.plan()!=null){
             azureAttributes."plan:name" = vm.plan().name()
@@ -84,11 +84,11 @@ class AzureNode {
             azureAttributes."plan:publisher" = vm.plan().publisher()
         }
 
-        azureAttributes."size:name" = size.name()
-        azureAttributes."size:numberOfCores" = size.numberOfCores()
-        azureAttributes."size:memoryInMB" = size.memoryInMB()
-        azureAttributes."size:maxDataDiskCount" = size.maxDataDiskCount()
-        azureAttributes."size:resourceDiskSizeInMB" = size.resourceDiskSizeInMB()
+        azureAttributes."size:name" = size?.name()
+        azureAttributes."size:numberOfCores" = size?.numberOfCores()
+        azureAttributes."size:memoryInMB" = size?.memoryInMB()
+        azureAttributes."size:maxDataDiskCount" = size?.maxDataDiskCount()
+        azureAttributes."size:resourceDiskSizeInMB" = size?.resourceDiskSizeInMB()
 
         azureAttributes."image:type" = vm.storageProfile()?.imageReference()?.publisher()?.toString()
         azureAttributes."image:offer" = vm.storageProfile()?.imageReference()?.offer()?.toString()
