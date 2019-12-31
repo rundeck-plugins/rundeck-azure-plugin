@@ -1,27 +1,13 @@
 package com.rundeck.plugins.azure.azure
 
 import com.microsoft.azure.AzureEnvironment
-import com.microsoft.azure.Resource
 import com.microsoft.azure.credentials.ApplicationTokenCredentials
 import com.microsoft.azure.management.Azure
-import com.microsoft.azure.management.compute.Disk
-import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage
-import com.microsoft.azure.management.compute.KnownWindowsVirtualMachineImage
-import com.microsoft.azure.management.compute.VirtualMachine
-import com.microsoft.azure.management.compute.VirtualMachineImage
-import com.microsoft.azure.management.compute.VirtualMachineOffer
-import com.microsoft.azure.management.compute.VirtualMachinePublisher
 import com.microsoft.azure.management.compute.VirtualMachineSize
-import com.microsoft.azure.management.compute.VirtualMachineSizeTypes
-import com.microsoft.azure.management.compute.VirtualMachineSku
-import com.microsoft.azure.management.compute.VirtualMachineUnmanagedDataDisk
 import com.microsoft.azure.management.resources.fluentcore.arm.Region
-import com.microsoft.azure.management.resources.fluentcore.arm.models.GroupableResource
 import com.microsoft.azure.management.resources.fluentcore.utils.SdkContext
 import com.rundeck.plugins.azure.util.AzurePluginUtil
-import groovy.json.JsonOutput
 import org.apache.log4j.Logger
-
 /**
  * Created by luistoledo on 11/6/17.
  */
@@ -37,6 +23,8 @@ class AzureManager {
     String pfxCertificatePassword
 
     String resourceGroup
+    String tagName
+    String tagValue
     Region region
     boolean onlyRunningInstances
     boolean debug
@@ -88,9 +76,13 @@ class AzureManager {
             list = list.findAll({p-> p.region()==region})
         }
 
+        if(tagName!=null && tagValue != null){
+            list = list.findAll({p->
+                p.tags().find { t -> t.getKey() == tagName && tagValue == t.getValue() } != null
+            })
+        }
+
         List<AzureNode> listNodes = new ArrayList<>()
-
-
 
         list.each { virtualMachine->
 

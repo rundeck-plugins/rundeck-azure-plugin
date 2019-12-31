@@ -40,6 +40,8 @@ class AzureResourceModelSource  implements ResourceModelSource {
         String pfxCertificatePassword=configuration.getProperty(AzureResourceModelSourceFactory.PFX_CERTIFICATE_PASSWORD)
         String resourceGroup=configuration.getProperty(AzureResourceModelSourceFactory.RESOURCE_GROUP)
         boolean onlyRunningInstances=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.RUNNING_ONLY))
+        String tagName=configuration.getProperty(AzureResourceModelSourceFactory.TAG_NAME)
+        String tagValue=configuration.getProperty(AzureResourceModelSourceFactory.TAG_VALUE)
         String extraMapping=configuration.getProperty(AzureResourceModelSourceFactory.EXTRA_MAPPING)
 
         boolean debug=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.DEBUG))
@@ -58,6 +60,8 @@ class AzureResourceModelSource  implements ResourceModelSource {
                     .pfxCertificatePassword(pfxCertificatePassword)
                     .resourceGroup(resourceGroup)
                     .onlyRunningInstances(onlyRunningInstances)
+                    .tagName(tagName)
+                    .tagValue(tagValue)
                     .debug(debug)
                     .build()
         }

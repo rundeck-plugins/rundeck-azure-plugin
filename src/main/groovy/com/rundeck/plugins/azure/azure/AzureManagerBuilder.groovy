@@ -15,6 +15,8 @@ class AzureManagerBuilder {
     String pfxCertificatePassword
 
     String resourceGroup
+    String tagName
+    String tagValue
     boolean onlyRunningInstances
     Region region
 
@@ -98,7 +100,7 @@ class AzureManagerBuilder {
     }
 
     /**
-     * @param onlyRunningInstances Only Running instances
+     * @param region the region to filter machines
      * @return this builder
      */
     AzureManagerBuilder region(Region region){
@@ -107,11 +109,29 @@ class AzureManagerBuilder {
     }
 
     /**
-     * @param onlyRunningInstances Only Running instances
+     * @param debug print debug messages in log
      * @return this builder
      */
     AzureManagerBuilder debug(boolean debug){
         this.debug = debug
+        return this
+    }
+
+    /**
+     * @param tagName the tag to filter machines
+     * @return this builder
+     */
+    AzureManagerBuilder tagName(String tagName){
+        this.tagName = tagName
+        return this
+    }
+
+    /**
+     * @param tagValue the value of tagName to filter machines
+     * @return this builder
+     */
+    AzureManagerBuilder tagValue(String tagValue){
+        this.tagValue = tagValue
         return this
     }
 
@@ -128,6 +148,8 @@ class AzureManagerBuilder {
         azure.setResourceGroup(this.resourceGroup)
         azure.setOnlyRunningInstances(this.onlyRunningInstances)
         azure.setDebug(debug)
+        azure.setTagName(this.tagName)
+        azure.setTagValue(this.tagValue)
 
         return azure
     }

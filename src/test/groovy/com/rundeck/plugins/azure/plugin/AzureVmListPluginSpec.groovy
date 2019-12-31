@@ -2,13 +2,11 @@ package com.rundeck.plugins.azure.plugin
 
 import com.dtolabs.rundeck.core.execution.ExecutionContext
 import com.dtolabs.rundeck.core.execution.ExecutionListener
-import com.dtolabs.rundeck.core.execution.ExecutionLogger
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
 import com.microsoft.azure.management.Azure
 import com.rundeck.plugins.azure.azure.AzureManager
 import com.rundeck.plugins.azure.azure.AzureNode
 import spock.lang.Specification
-
 /**
  * Created by luistoledo on 12/15/17.
  */

@@ -14,8 +14,6 @@ import com.rundeck.plugins.azure.azure.AzureManager
 import com.rundeck.plugins.azure.azure.AzureManagerBuilder
 import com.rundeck.plugins.azure.util.AzurePluginUtil
 import groovy.json.JsonOutput
-import org.apache.commons.collections.map.HashedMap
-
 /**
  * Created by luistoledo on 11/21/17.
  */
@@ -35,6 +33,8 @@ class AzureVmListPlugin implements StepPlugin, Describable {
 
     public static final String VM_RESOURCE_GROUP = "vmResourceGroup"
     public static final String VM_REGION = "vmRegion"
+    public static final String TAG_NAME = "tagName"
+    public static final String TAG_VALUE = "tagValue"
     public static final String RUNNING_ONLY = "onlyRunningInstances"
 
     final static Map<String, Object> renderingOptionsAuthentication = AzurePluginUtil.getRenderOpt("Credentials",false)
@@ -60,6 +60,10 @@ class AzureVmListPlugin implements StepPlugin, Describable {
             .property(PropertyUtil.string(PFX_CERTIFICATE_PASSWORD, "Certificate Password", "Azure certificate Password.", false,
             null,null,null, renderingOptionsAuthentication))
             .property(PropertyUtil.string(VM_REGION, "Region", "Azure Region.", true,
+            null,null,null, renderingOptionsConfig))
+            .property(PropertyUtil.string(TAG_NAME, "Tag Name", "Tag Name.", false,
+            null,null,null, renderingOptionsConfig))
+            .property(PropertyUtil.string(TAG_VALUE, "Region", "Tag Value.", false,
             null,null,null, renderingOptionsConfig))
             .property(PropertyUtil.string(VM_RESOURCE_GROUP, "Resource Group", "Azure Resource Group.", true,
             null,null,null, renderingOptionsConfig))
