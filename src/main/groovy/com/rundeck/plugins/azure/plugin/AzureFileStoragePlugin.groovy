@@ -10,6 +10,7 @@ import com.dtolabs.rundeck.core.plugins.Plugin
 import com.dtolabs.rundeck.plugins.ServiceNameConstants
 import com.dtolabs.rundeck.plugins.descriptions.PluginDescription
 import com.dtolabs.rundeck.plugins.descriptions.PluginProperty
+import com.dtolabs.rundeck.plugins.descriptions.SelectValues
 import com.dtolabs.rundeck.plugins.logging.ExecutionFileStoragePlugin
 import com.microsoft.azure.management.resources.fluentcore.arm.models.HasManager
 import com.microsoft.azure.storage.CloudStorageAccount
@@ -52,6 +53,11 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     @PluginProperty(title = "Access Key", description = "Azure Storage Access Key")
     private String accessKey;
 
+    @PluginProperty(title = "Endpoint Protocol", description = "Default Endpoint Protocol: http or https ", defaultValue = "http")
+    private String defaultEndpointProtocol
+
+    @PluginProperty(title = "Extra connection string settings", description = "Extra connection settings, see https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string#store-a-connection-string")
+    private String extraConnectionSettings
 
     @PluginProperty(
             title = "Path",
@@ -104,7 +110,11 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
             throw new IllegalArgumentException("expanded value of path must not end with /");
         }
 
-        String storageConnectionString = "DefaultEndpointsProtocol=http;AccountName=" + this.storageAccount+ ";AccountKey=" + this.accessKey;
+        String storageConnectionString = "DefaultEndpointsProtocol="+defaultEndpointProtocol+";AccountName=" + this.storageAccount+ ";AccountKey=" + this.accessKey;
+
+        if(extraConnectionSettings){
+            storageConnectionString = storageConnectionString + ";" + extraConnectionSettings
+        }
 
         CloudStorageAccount account = CloudStorageAccount.parse(storageConnectionString);
         serviceClient = account.createCloudBlobClient();
@@ -240,10 +250,7 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     }
 
     String getFileName(String fileType){
-        println ("en filename")
-        println context
         String executionId=context.get(META_EXECID)
-        println ("executionId: ${executionId}")
         String project=context.get(META_PROJECT)
 
         String fileName="${project}/${executionId}.${fileType}"
