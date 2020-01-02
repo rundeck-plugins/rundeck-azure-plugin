@@ -144,6 +144,9 @@ To configure the Azure Storage Account credentials you can set these property va
      * `${job.id}` = job UUID (or blank).
      * `${job.group}` = job group (or blank).
      * `${job.name}` = job name (or blank)
+     
+* **defaultEndpointProtocol**: Endpoint Protocol. Default Endpoint Protocol: http (default) or https
+* **extraConnectionSettings**: Extra connection settings, see https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string#store-a-connection-string
 
 You can define the configuration values in `framework.properties` by prefixing the property name with the stem: `framework.plugin.ExecutionFileStorage.azure-storage`. Or in a project's `project.properties` file with the stem `project.plugin.ExecutionFileStorage.azure-storage`.
 
@@ -153,6 +156,7 @@ For example:
 #storage.storageAccount and storage.accessKey
 framework.plugin.ExecutionFileStorage.azure-storage.storageAccount=<ACCOUNT-NAME>
 framework.plugin.ExecutionFileStorage.azure-storage.accessKey=<ACCESS-KEY>
+framework.plugin.ExecutionFileStorage.azure-storage.defaultEndpointProtocol=https
 
 #path to store the logs
 framework.plugin.ExecutionFileStorage.azure-storage.path=logs/${job.project}/${job.execid}.log
