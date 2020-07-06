@@ -7,13 +7,10 @@ import com.microsoft.azure.management.compute.VirtualMachineSize
 import com.microsoft.azure.management.resources.fluentcore.arm.Region
 import com.microsoft.azure.management.resources.fluentcore.utils.SdkContext
 import com.rundeck.plugins.azure.util.AzurePluginUtil
-import org.apache.log4j.Logger
 /**
  * Created by luistoledo on 11/6/17.
  */
 class AzureManager {
-
-    static Logger LOG = Logger.getLogger(AzureManager.class);
 
     String clientId
     String tenantId

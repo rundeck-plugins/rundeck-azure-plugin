@@ -10,14 +10,12 @@ import com.rundeck.plugins.azure.azure.AzureManager
 import com.rundeck.plugins.azure.azure.AzureManagerBuilder
 import com.rundeck.plugins.azure.azure.AzureNode
 import com.rundeck.plugins.azure.azure.AzureNodeMapper
-import org.apache.log4j.Logger
 
 /**
  * Created by luistoledo on 11/6/17.
  */
 class AzureResourceModelSource  implements ResourceModelSource {
 
-    static Logger logger = Logger.getLogger(AzureResourceModelSource.class);
     private Properties configuration;
     private AzureManager manager;
 
