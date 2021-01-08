@@ -135,6 +135,12 @@ class AzureNodeMapper {
             }
         }
 
+        if(node.getAzureTags()){
+            node.getAzureTags().forEach{key, value ->
+                tagSet.add(key +":"+value)
+            }
+        }
+
         return tagSet
     }
 

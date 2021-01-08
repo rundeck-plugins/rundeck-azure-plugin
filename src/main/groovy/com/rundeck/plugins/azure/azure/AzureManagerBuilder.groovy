@@ -19,6 +19,7 @@ class AzureManagerBuilder {
     String tagValue
     boolean onlyRunningInstances
     Region region
+    boolean useAzureTags
 
     boolean debug
 
@@ -100,6 +101,15 @@ class AzureManagerBuilder {
     }
 
     /**
+     * @param onlyRunningInstances Only Running instances
+     * @return this builder
+     */
+    AzureManagerBuilder useAzureTags(boolean useAzureTags){
+        this.useAzureTags = useAzureTags
+        return this
+    }
+
+    /**
      * @param region the region to filter machines
      * @return this builder
      */
@@ -150,6 +160,7 @@ class AzureManagerBuilder {
         azure.setDebug(debug)
         azure.setTagName(this.tagName)
         azure.setTagValue(this.tagValue)
+        azure.setUseAzureTags(this.useAzureTags)
 
         return azure
     }
