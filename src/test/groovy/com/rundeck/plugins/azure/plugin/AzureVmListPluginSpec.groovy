@@ -45,7 +45,7 @@ class AzureVmListPluginSpec extends Specification{
         AzureNode test = new AzureNode()
         test.name="test"
         test.hostname="test"
-        test.azureAttributes=[]
+        test.azureAttributes=[:]
 
         def vmList = [test]
 
