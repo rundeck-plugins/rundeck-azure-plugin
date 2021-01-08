@@ -31,4 +31,4 @@ jobs:
           # Artifact name
           name: Grails-Plugin-${{ steps.get_version.outputs.VERSION }}
           # Directory containing files to upload
-          path: build/libs/rundeck-azure-plugin-${{ steps.get_version.outputs.VERSION }}.jar
+          path: build/libs/azure-plugin-${{ steps.get_version.outputs.VERSION }}.jar
