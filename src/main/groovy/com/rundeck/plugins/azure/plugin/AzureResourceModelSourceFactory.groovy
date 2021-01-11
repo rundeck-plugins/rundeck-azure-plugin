@@ -42,6 +42,7 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
     public static final String TAG_NAME = "tagName"
     public static final String TAG_VALUE = "tagValue"
     public static final String RUNNING_ONLY = "onlyRunningInstances"
+    public static final String USE_AZURE_TAGS = "useAzureTags"
 
     public static final String DEBUG = "debugVm"
 
@@ -87,6 +88,9 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
             .property(PropertyUtil.bool(DEBUG, "Debug VM info",
             "Get the VM data on rundeck's log",
             false, "false", null,renderingOptionsConfig))
+            .property(PropertyUtil.bool(USE_AZURE_TAGS, "Use Azure Tags",
+                    "If this option is enabled, azure tags will be exporting as Rundeck node tags.",
+                    false, "false", null,renderingOptionsConfig))
             .build()
 
     @Override

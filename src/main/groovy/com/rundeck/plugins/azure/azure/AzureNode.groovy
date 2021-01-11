@@ -14,16 +14,18 @@ class AzureNode {
     String osName
     String osVersion
 
-    HashMap azureAttributes
+    Map azureAttributes
 
     VirtualMachineSize size
+
+    Map<String, String> azureTags
 
 
     AzureNode(){
 
     }
 
-    AzureNode(VirtualMachine vm, VirtualMachineSize size) {
+    AzureNode(VirtualMachine vm, VirtualMachineSize size, boolean useAzureTags) {
 
         this.size = size
         //basic attributes
@@ -70,6 +72,15 @@ class AzureNode {
         vm.tags().findAll {key, value -> !key.contains("Tags") && key.contains("Rundeck-")}.each { key, value ->
             String name = key.replace("Rundeck-","")
             azureAttributes."${name}"=value
+        }
+
+        if(useAzureTags){
+            azureTags = [:]
+            vm.tags().findAll {key, value ->
+                if(key != "Rundeck-Tags"){
+                    azureTags.put(key, value)
+                }
+            }
         }
 
         azureAttributes.id = vm.id()

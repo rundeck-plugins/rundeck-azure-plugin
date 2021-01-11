@@ -41,6 +41,7 @@ class AzureResourceModelSource  implements ResourceModelSource {
         String tagName=configuration.getProperty(AzureResourceModelSourceFactory.TAG_NAME)
         String tagValue=configuration.getProperty(AzureResourceModelSourceFactory.TAG_VALUE)
         String extraMapping=configuration.getProperty(AzureResourceModelSourceFactory.EXTRA_MAPPING)
+        boolean useAzureTags=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.USE_AZURE_TAGS))
 
         boolean debug=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.DEBUG))
 
@@ -61,6 +62,7 @@ class AzureResourceModelSource  implements ResourceModelSource {
                     .tagName(tagName)
                     .tagValue(tagValue)
                     .debug(debug)
+                    .useAzureTags(useAzureTags)
                     .build()
         }
 
