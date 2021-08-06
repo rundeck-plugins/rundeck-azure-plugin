@@ -1,13 +1,15 @@
 package com.rundeck.plugins.azure.util
 
+import com.dtolabs.rundeck.core.execution.workflow.steps.StepException
 import com.dtolabs.rundeck.core.plugins.configuration.StringRenderingConstants
 import com.dtolabs.rundeck.core.storage.ResourceMeta
+import com.dtolabs.rundeck.core.storage.StorageTree
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
 import com.microsoft.azure.management.compute.DataDisk
-import com.microsoft.azure.management.compute.DiskInstanceView
-import com.microsoft.azure.management.compute.InstanceViewStatus
 import com.microsoft.azure.management.compute.VirtualMachine
 import com.microsoft.azure.management.compute.VirtualMachineExtension
+import com.rundeck.plugins.azure.plugin.AzureFailureReason
+import groovy.transform.CompileStatic
 
 /**
  * Created by luistoledo on 11/6/17.
@@ -197,6 +199,20 @@ class AzurePluginUtil {
         String password = new String(byteArrayOutputStream.toByteArray());
 
         return password;
+
+    }
+
+    static String getPasswordFromKeyStorage(String path, StorageTree storage) {
+        try{
+            ResourceMeta contents = storage.getResource(path).getContents()
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
+            contents.writeContent(byteArrayOutputStream)
+            String password = new String(byteArrayOutputStream.toByteArray())
+
+            return password
+        }catch(Exception e){
+            throw new StepException("error accessing ${path}: ${e.message}", AzureFailureReason.KeyStorage)
+        }
 
     }
 

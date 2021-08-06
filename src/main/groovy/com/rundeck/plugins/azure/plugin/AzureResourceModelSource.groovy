@@ -6,10 +6,13 @@ import com.dtolabs.rundeck.core.common.NodeEntryImpl
 import com.dtolabs.rundeck.core.common.NodeSetImpl
 import com.dtolabs.rundeck.core.resources.ResourceModelSource
 import com.dtolabs.rundeck.core.resources.ResourceModelSourceException
+import com.dtolabs.rundeck.core.storage.keys.KeyStorageTree
 import com.rundeck.plugins.azure.azure.AzureManager
 import com.rundeck.plugins.azure.azure.AzureManagerBuilder
 import com.rundeck.plugins.azure.azure.AzureNode
 import com.rundeck.plugins.azure.azure.AzureNodeMapper
+import com.rundeck.plugins.azure.util.AzurePluginUtil
+import org.rundeck.app.spi.Services
 
 /**
  * Created by luistoledo on 11/6/17.
@@ -18,9 +21,12 @@ class AzureResourceModelSource  implements ResourceModelSource {
 
     private Properties configuration;
     private AzureManager manager;
+    Services services
 
-    AzureResourceModelSource(Properties configuration) {
+
+    AzureResourceModelSource(Properties configuration, Services services) {
         this.configuration = configuration
+        this.services = services
     }
 
     void setAzureManager(AzureManager manager){
@@ -42,6 +48,12 @@ class AzureResourceModelSource  implements ResourceModelSource {
         String tagValue=configuration.getProperty(AzureResourceModelSourceFactory.TAG_VALUE)
         String extraMapping=configuration.getProperty(AzureResourceModelSourceFactory.EXTRA_MAPPING)
         boolean useAzureTags=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.USE_AZURE_TAGS))
+        String keyStoragePath=configuration.getProperty(AzureResourceModelSourceFactory.KEY_STORAGE_PATH)
+
+        if(keyStoragePath){
+            KeyStorageTree keyStorage = services.getService(KeyStorageTree.class)
+            key = AzurePluginUtil.getPasswordFromKeyStorage(keyStoragePath, keyStorage)
+        }
 
         boolean debug=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.DEBUG))
 
