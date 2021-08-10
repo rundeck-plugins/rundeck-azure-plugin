@@ -12,6 +12,8 @@ import com.dtolabs.rundeck.plugins.ServiceNameConstants
 import com.dtolabs.rundeck.plugins.descriptions.PluginDescription
 import com.dtolabs.rundeck.plugins.util.DescriptionBuilder
 import com.rundeck.plugins.azure.util.AzurePluginUtil
+import org.rundeck.app.spi.Services
+
 /**
  * Created by luistoledo on 11/3/17.
  */
@@ -31,6 +33,8 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
     public static final String TENANT = "tenant"
     public static final String SUBSCRIPTION_ID = "subscriptionId"
     public static final String KEY = "key"
+    public static final String KEY_STORAGE_PATH = "keyStoragePath"
+
     public static final String PFX_CERTIFICATE_PATH = "pfxCertificatePath"
     public static final String PFX_CERTIFICATE_PASSWORD = "pfxCertificatePassword"
 
@@ -49,6 +53,8 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
     final static Map<String, Object> renderingOptionsAuthentication = AzurePluginUtil.getRenderOpt("Credentials",false)
     final static Map<String, Object> renderingOptionsAuthenticationPassword = AzurePluginUtil.getRenderOpt("Credentials",false, true)
     final static Map<String, Object> renderingOptionsConfig = AzurePluginUtil.getRenderOpt("Configuration",false)
+    final static Map<String, Object> renderingOptionsAuthenticationStorage = AzurePluginUtil.getRenderOpt("Credentials",false, false, true)
+
 
     AzureResourceModelSourceFactory(Framework framework) {
         this.framework = framework
@@ -68,6 +74,8 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
             null,null,null, renderingOptionsAuthentication))
             .property(PropertyUtil.string(KEY, "Key", "Azure Access Key.", false,
             null,null,null, renderingOptionsAuthenticationPassword))
+            .property(PropertyUtil.string(KEY_STORAGE_PATH, "Key Storage Path", "Azure Access Key from Rundeck storage path.", false,
+                    null,null,null, renderingOptionsAuthenticationStorage))
             .property(PropertyUtil.string(PFX_CERTIFICATE_PATH, "Certificate Path", "Azure certificate file path.", false,
             null,null,null, renderingOptionsAuthentication))
             .property(PropertyUtil.string(PFX_CERTIFICATE_PASSWORD, "Certificate Password", "Azure certificate Password.", false,
@@ -100,7 +108,12 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
 
     @Override
     ResourceModelSource createResourceModelSource(Properties configuration) throws ConfigurationException {
-        final AzureResourceModelSource resource = new AzureResourceModelSource(configuration)
+        return null
+    }
+
+    @Override
+    ResourceModelSource createResourceModelSource(Services services, Properties configuration) throws ConfigurationException {
+        final AzureResourceModelSource resource = new AzureResourceModelSource(configuration, services)
 
         return resource
     }
