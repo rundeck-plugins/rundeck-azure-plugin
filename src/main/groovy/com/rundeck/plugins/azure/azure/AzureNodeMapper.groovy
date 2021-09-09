@@ -141,6 +141,8 @@ class AzureNodeMapper {
             }
         }
 
+        tagSet.add("AzureVM")
+
         return tagSet
     }
 
