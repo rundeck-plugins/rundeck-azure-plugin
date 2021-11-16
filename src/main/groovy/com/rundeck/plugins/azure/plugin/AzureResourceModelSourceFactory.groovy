@@ -47,6 +47,7 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
     public static final String TAG_VALUE = "tagValue"
     public static final String RUNNING_ONLY = "onlyRunningInstances"
     public static final String USE_AZURE_TAGS = "useAzureTags"
+    public static final String USE_PRIVATE_IP = "usePrivateIp"
 
     public static final String DEBUG = "debugVm"
 
@@ -98,6 +99,10 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
             false, "false", null,renderingOptionsConfig))
             .property(PropertyUtil.bool(USE_AZURE_TAGS, "Use Azure Tags",
                     "If this option is enabled, azure tags will be exporting as Rundeck node tags.",
+                    false, "false", null,renderingOptionsConfig))
+            .property(PropertyUtil.bool(USE_PRIVATE_IP, "Use Private IP",
+                    "If this option is enabled, hostname will be populated with private ip, " + 
+                    "otherwise public ip will be used.",
                     false, "false", null,renderingOptionsConfig))
             .build()
 

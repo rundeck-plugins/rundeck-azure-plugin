@@ -48,6 +48,7 @@ class AzureResourceModelSource  implements ResourceModelSource {
         String tagValue=configuration.getProperty(AzureResourceModelSourceFactory.TAG_VALUE)
         String extraMapping=configuration.getProperty(AzureResourceModelSourceFactory.EXTRA_MAPPING)
         boolean useAzureTags=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.USE_AZURE_TAGS))
+        boolean usePrivateIp=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.USE_PRIVATE_IP))
         String keyStoragePath=configuration.getProperty(AzureResourceModelSourceFactory.KEY_STORAGE_PATH)
 
         if(keyStoragePath){
@@ -75,6 +76,7 @@ class AzureResourceModelSource  implements ResourceModelSource {
                     .tagValue(tagValue)
                     .debug(debug)
                     .useAzureTags(useAzureTags)
+                    .usePrivateIp(usePrivateIp)
                     .build()
         }
 
