@@ -60,6 +60,8 @@ osDisk:name.selector                =    azure_osDisk_name
 osDisk:createOption.selector        =    azure_osDisk_createOption
 osDisk:diskSizeGB.selector          =    azure_osDisk_diskSizeGB
 
+netInterface:privateIp.selector     =    azure_netInterface_privateIp
+
 plan:name.selector                  =    azure_plan_name
 plan:product.selector               =    azure_plan_product
 plan:publisher.selector             =    azure_plan_publisher

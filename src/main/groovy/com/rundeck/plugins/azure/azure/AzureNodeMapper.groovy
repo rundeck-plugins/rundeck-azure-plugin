@@ -39,6 +39,7 @@ class AzureNodeMapper {
                                     "osDisk\\:name.selector=azure_osDisk_name\n" +
                                     "osDisk\\:createOption.selector=azure_osDisk_createOption\n" +
                                     "osDisk\\:diskSizeGB.selector=azure_osDisk_diskSizeGB\n" +
+                                    "netInterface\\:privateIp.selector=azure_netInterface_privateIp\n" +
                                     "provisioningState\\:code.selector=azure_provisioningState_code\n" +
                                     "provisioningState\\:displayStatus.selector=azure_provisioningState_displayStatus\n" +
                                     "provisioningState\\:message.selector=azure_provisioningState_message\n" +

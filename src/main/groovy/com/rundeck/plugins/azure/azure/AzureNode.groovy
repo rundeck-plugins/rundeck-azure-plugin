@@ -111,6 +111,8 @@ class AzureNode {
         azureAttributes."osDisk:createOption" = vm.storageProfile()?.osDisk()?.createOption()?.toString()
         azureAttributes."osDisk:diskSizeGB" = vm.storageProfile()?.osDisk()?.diskSizeGB()?.toString()
 
+        azureAttributes."netInterface:privateIp" = vm.getPrimaryNetworkInterface()?.primaryPrivateIP()
+
         if(vm.instanceView().vmAgent()!=null) {
             vm.instanceView().vmAgent().statuses()?.each { status->
                 azureAttributes."provisioningState:code" = status.code()
@@ -156,6 +158,8 @@ class AzureNode {
             case "azure_osDisk_name": return getAzureAttributes()!=null ? getAzureAttributes().get("osDisk:name"):null
             case "azure_osDisk_createOption": return getAzureAttributes()!=null ? getAzureAttributes().get("osDisk:createOption"):null
             case "azure_osDisk_diskSizeGB": return getAzureAttributes()!=null ? getAzureAttributes().get("osDisk:diskSizeGB"):null
+
+            case "azure_netInterface_privateIp": return getAzureAttributes()!=null ? getAzureAttributes().get("netInterface:privateIp"):null
 
             case "azure_provisioningState_code": return getAzureAttributes()!=null ? getAzureAttributes().get("provisioningState:code"):null
             case "azure_provisioningState_displayStatus": return getAzureAttributes()!=null ? getAzureAttributes().get("provisioningState:displayStatus"):null
