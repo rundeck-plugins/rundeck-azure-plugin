@@ -73,6 +73,9 @@ dependencies {
         pluginLibs("com.squareup.retrofit2:adapter-rxjava:2.6.1")  {
             because "retrofit version by azure affected by CVE-2018-1000844"
         }
+        pluginLibs("net.minidev:json-smart:2.4.8")  {
+            because "version 2.4.2 affected by CVE-2021-31684"
+        }
     }
 
 }
