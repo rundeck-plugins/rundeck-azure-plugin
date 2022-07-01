@@ -130,6 +130,45 @@ class AzureManager {
             vms.powerOff(resourceGroup, name)
         }
     }
+    
+    void captureSnapshot(String name, String containerName, String vhdPrefix, boolean overwriteVhd, boolean async){
+        this.connect()
+
+        def vms = azure.virtualMachines()
+
+        if(async) {
+            vms.captureAsync(resourceGroup, name, containerName, vhdPrefix, overwriteVhd).await()
+
+        }else{
+            vms.capture(resourceGroup, name, containerName, vhdPrefix, overwriteVhd)
+        }
+    }
+
+    void captureSnapshotWithManagedDisk(String snapshotName, String diskId){
+        this.connect()
+        String resourceID =  "/subscriptions/" + subscriptionId + "/resourceGroups/" + resourceGroup + "/providers/Microsoft.Compute/disks/" + diskId
+        Disk osDisk = azure.disks().getById(resourceID)
+        def vms = azure.virtualMachines()
+
+        if(osDisk.osType() == "Windows")
+            {
+                Snapshot osSnapshot = azure.snapshots().define(snapshotName)
+                        .withRegion(osDisk.regionName())
+                        .withExistingResourceGroup(resourceGroup)
+                        .withWindowsFromDisk(resourceID)
+                        .create();
+            }
+            else
+            {
+                Snapshot osSnapshot = azure.snapshots().define(snapshotName)
+                        .withRegion(osDisk.regionName())
+                        .withExistingResourceGroup(resourceGroup)
+                        .withLinuxFromDisk(resourceID)
+                        .create();
+            }
+
+       
+    }
 
 
 
