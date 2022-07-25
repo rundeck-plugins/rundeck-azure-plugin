@@ -125,7 +125,7 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         serviceClient = account.createCloudBlobClient();
 
         // Container name must be lower case.
-        this.containerName = this.containerName ? this.containerName.toLowerCase : expandedPath.substring(0,expandedPath.indexOf("/")).toLowerCase()
+        this.containerName = this.containerName ? this.containerName.toLowerCase() : expandedPath.substring(0,expandedPath.indexOf("/")).toLowerCase()
         
         container = serviceClient.getContainerReference(containerName)
         container.createIfNotExists()
