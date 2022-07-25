@@ -67,6 +67,11 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     )
     private String path
 
+    @PluginProperty(
+        title = "Container Name",
+        description = "(Optional) Define the container name where the logs will be saved. If not set, it'll be obtained from `path` property. Eg: If the path=\"project/\${job.project}/\${job.execid}\" then the containerName property will be \"project\""
+    )
+    protected String containerName = null
 
     Map<String, ?> context;
     CloudBlobClient serviceClient
@@ -120,13 +125,10 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         serviceClient = account.createCloudBlobClient();
 
         // Container name must be lower case.
-        String containerName = expandedPath.substring(0,expandedPath.indexOf("/")).toLowerCase()
+        this.containerName = this.containerName ? this.containerName.toLowerCase : expandedPath.substring(0,expandedPath.indexOf("/")).toLowerCase()
+        
         container = serviceClient.getContainerReference(containerName)
         container.createIfNotExists()
-
-
-
-
     }
 
     @Override
