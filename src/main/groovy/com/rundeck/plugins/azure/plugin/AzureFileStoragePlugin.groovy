@@ -69,8 +69,7 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
 
     @PluginProperty(
         title = "Container Name",
-        description = "Define the container name where the logs will be saved.",
-        defaultValue = "The base of the path set. Eg: If the path=\"project/\${job.project}/\${job.execid}\" then the containerName property will be \"project\""
+        description = "(Optional) Define the container name where the logs will be saved. If not set, it'll be obtained from `path` property. Eg: If the path=\"project/\${job.project}/\${job.execid}\" then the containerName property will be \"project\""
     )
     public String containerName = null
 
