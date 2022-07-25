@@ -71,7 +71,7 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         title = "Container Name",
         description = "(Optional) Define the container name where the logs will be saved. If not set, it'll be obtained from `path` property. Eg: If the path=\"project/\${job.project}/\${job.execid}\" then the containerName property will be \"project\""
     )
-    public String containerName = null
+    protected String containerName = null
 
     Map<String, ?> context;
     CloudBlobClient serviceClient
