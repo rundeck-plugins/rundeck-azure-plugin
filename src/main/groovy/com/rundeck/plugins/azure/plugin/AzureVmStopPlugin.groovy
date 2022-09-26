@@ -100,7 +100,7 @@ class AzureVmStopPlugin  implements StepPlugin, Describable {
                 .key(key)
                 .pfxCertificatePath(pfxCertificatePath)
                 .pfxCertificatePassword(pfxCertificatePassword)
-                .resourceGroup(resourceGroup)
+                .resourceGroups([resourceGroup])
                 .build()
 
         Map<String, String> meta = new HashMap<>();

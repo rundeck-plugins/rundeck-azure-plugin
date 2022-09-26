@@ -42,13 +42,19 @@ class AzureResourceModelSource  implements ResourceModelSource {
         String key=configuration.getProperty(AzureResourceModelSourceFactory.KEY)
         String pfxCertificatePath=configuration.getProperty(AzureResourceModelSourceFactory.PFX_CERTIFICATE_PATH)
         String pfxCertificatePassword=configuration.getProperty(AzureResourceModelSourceFactory.PFX_CERTIFICATE_PASSWORD)
-        String resourceGroup=configuration.getProperty(AzureResourceModelSourceFactory.RESOURCE_GROUP)
         boolean onlyRunningInstances=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.RUNNING_ONLY))
         String tagName=configuration.getProperty(AzureResourceModelSourceFactory.TAG_NAME)
         String tagValue=configuration.getProperty(AzureResourceModelSourceFactory.TAG_VALUE)
         String extraMapping=configuration.getProperty(AzureResourceModelSourceFactory.EXTRA_MAPPING)
         boolean useAzureTags=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.USE_AZURE_TAGS))
         String keyStoragePath=configuration.getProperty(AzureResourceModelSourceFactory.KEY_STORAGE_PATH)
+
+        List<String> resourceGroups = []
+        String [] rawResourceGroupStrs = configuration.getProperty(AzureResourceModelSourceFactory.RESOURCE_GROUPS)?.split(AzureResourceModelSourceFactory.RESOURCE_GROUP_SEPARATOR)
+        if(rawResourceGroupStrs)
+            for( int i = 0 ; i < rawResourceGroupStrs.size() ; i++)
+                resourceGroups << rawResourceGroupStrs[i].trim()
+
 
         if(keyStoragePath){
             KeyStorageTree keyStorage = services.getService(KeyStorageTree.class)
@@ -69,7 +75,7 @@ class AzureResourceModelSource  implements ResourceModelSource {
                     .key(key)
                     .pfxCertificatePath(pfxCertificatePath)
                     .pfxCertificatePassword(pfxCertificatePassword)
-                    .resourceGroup(resourceGroup)
+                    .resourceGroups(resourceGroups)
                     .onlyRunningInstances(onlyRunningInstances)
                     .tagName(tagName)
                     .tagValue(tagValue)

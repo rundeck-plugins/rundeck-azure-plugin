@@ -6,6 +6,7 @@ import com.dtolabs.rundeck.core.plugins.configuration.ConfigurationException
 import com.dtolabs.rundeck.core.plugins.configuration.Describable
 import com.dtolabs.rundeck.core.plugins.configuration.Description
 import com.dtolabs.rundeck.core.plugins.configuration.PropertyUtil
+import com.dtolabs.rundeck.core.plugins.configuration.ValidationException
 import com.dtolabs.rundeck.core.resources.ResourceModelSource
 import com.dtolabs.rundeck.core.resources.ResourceModelSourceFactory
 import com.dtolabs.rundeck.plugins.ServiceNameConstants
@@ -13,6 +14,7 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginDescription
 import com.dtolabs.rundeck.plugins.util.DescriptionBuilder
 import com.rundeck.plugins.azure.util.AzurePluginUtil
 import org.rundeck.app.spi.Services
+import java.util.regex.Pattern
 
 /**
  * Created by luistoledo on 11/3/17.
@@ -37,12 +39,13 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
 
     public static final String PFX_CERTIFICATE_PATH = "pfxCertificatePath"
     public static final String PFX_CERTIFICATE_PASSWORD = "pfxCertificatePassword"
+    public static final String RESOURCE_GROUP_SEPARATOR = ";"
 
     //mapping
     public static final String EXTRA_MAPPING = "extraMapping"
 
     //filters
-    public static final String RESOURCE_GROUP = "resourceGroup"
+    public static final String RESOURCE_GROUPS = "resourceGroup"
     public static final String TAG_NAME = "tagName"
     public static final String TAG_VALUE = "tagValue"
     public static final String RUNNING_ONLY = "onlyRunningInstances"
@@ -82,8 +85,12 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
             null,null,null, renderingOptionsAuthentication))
             .property(PropertyUtil.string(EXTRA_MAPPING, "Mapping Params", "Property mapping definitions. Specify multiple mappings in the form \"attributeName.selector=selector\" or \"attributeName.default=value\", separated by \";\"", false,
             "tags.selector=azure_status",null,null, renderingOptionsConfig))
-            .property(PropertyUtil.string(RESOURCE_GROUP, "Resource Group", "Filter using resource group", false,
-            null,null,null, renderingOptionsConfig))
+            .property(PropertyUtil.string(RESOURCE_GROUPS, "Resource Groups", "Filter using one or more resource group separated by '" + RESOURCE_GROUP_SEPARATOR + "' (empty for all resource groups).", false,
+            null, { String rgStr ->
+                if(Pattern.compile("^[a-zA-Z0-9_-]*(\\s?;\\s?[a-zA-Z0-9_-]+)*\$").matcher(rgStr).matches())
+                    return true
+                throw new ValidationException( rgStr + "Expected: rg1;rg2;...;rgN OR adding one space on each side of the ';'");
+            },null, renderingOptionsConfig))
             .property(PropertyUtil.string(TAG_NAME, "Tag Name", "Filter using tag name (this value will be ignored if either Tag Name or Tag Value is empty)", false,
             null,null,null, renderingOptionsConfig))
             .property(PropertyUtil.string(TAG_VALUE, "Tag Value", "Filter using tag value (this value will be ignored if either Tag Name or Tag Value is empty)", false,
@@ -114,7 +121,6 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
     @Override
     ResourceModelSource createResourceModelSource(Services services, Properties configuration) throws ConfigurationException {
         final AzureResourceModelSource resource = new AzureResourceModelSource(configuration, services)
-
         return resource
     }
 }

@@ -14,7 +14,7 @@ class AzureManagerBuilder {
     String pfxCertificatePath
     String pfxCertificatePassword
 
-    String resourceGroup
+    List<String> resourceGroups
     String tagName
     String tagValue
     boolean onlyRunningInstances
@@ -86,8 +86,8 @@ class AzureManagerBuilder {
      * @param resourceGroup Azure Resource Group
      * @return this builder
      */
-    AzureManagerBuilder resourceGroup(String resourceGroup){
-        this.resourceGroup = resourceGroup
+    AzureManagerBuilder resourceGroups(List resourceGroups){
+        this.resourceGroups = resourceGroups
         return this
     }
 
@@ -155,7 +155,7 @@ class AzureManagerBuilder {
         azure.setKey(this.key)
         azure.setPfxCertificatePath(this.pfxCertificatePath)
         azure.setPfxCertificatePassword(this.pfxCertificatePassword)
-        azure.setResourceGroup(this.resourceGroup)
+        azure.setResourceGroups(this.resourceGroups)
         azure.setOnlyRunningInstances(this.onlyRunningInstances)
         azure.setDebug(debug)
         azure.setTagName(this.tagName)

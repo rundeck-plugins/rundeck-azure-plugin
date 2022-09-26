@@ -1,8 +1,11 @@
 package com.rundeck.plugins.azure.azure
 
+import com.dtolabs.rundeck.core.resources.ResourceModelSourceException
 import com.microsoft.azure.AzureEnvironment
+import com.microsoft.azure.CloudException
 import com.microsoft.azure.credentials.ApplicationTokenCredentials
 import com.microsoft.azure.management.Azure
+import com.microsoft.azure.management.compute.VirtualMachine
 import com.microsoft.azure.management.compute.VirtualMachineSize
 import com.microsoft.azure.management.resources.fluentcore.arm.Region
 import com.microsoft.azure.management.resources.fluentcore.utils.SdkContext
@@ -19,7 +22,7 @@ class AzureManager {
     String pfxCertificatePath
     String pfxCertificatePassword
 
-    String resourceGroup
+    List<String> resourceGroups
     String tagName
     String tagValue
     Region region
@@ -58,12 +61,23 @@ class AzureManager {
         this.connect()
 
         def vms = azure.virtualMachines()
-        def list
+        List<VirtualMachine> list = new LinkedList<>()
 
-        if(resourceGroup!=null){
-            list = vms.listByResourceGroup(resourceGroup)
-        }else{
+        if(resourceGroups.isEmpty()){
             list = vms.list()
+        }else{
+            StringBuilder errorMsgs = new StringBuilder()
+            for(String rg : resourceGroups)
+                try{
+                    list.addAll(vms.listByResourceGroup(rg))
+                }catch(CloudException requestError){
+                    errorMsgs.append("\n" + requestError.getLocalizedMessage())
+                    if(debug){
+                        println("Couldn't load machines for resource group '${rg}': " + requestError.getLocalizedMessage())
+                    }
+                }
+            if (list.size() < 1 && errorMsgs.length() > 0)
+                throw new ResourceModelSourceException("COULDN'T LOAD ANY VIRTUAL MACHINES. LISTING ERRORS: " + errorMsgs)
         }
 
         if(onlyRunningInstances){
@@ -111,9 +125,9 @@ class AzureManager {
         def vms = azure.virtualMachines()
 
         if(async){
-            vms.startAsync(resourceGroup,name).await()
+            vms.startAsync(resourceGroups[0],name).await()
         }else{
-            vms.start(resourceGroup,name)
+            vms.start(resourceGroups[0],name)
         }
 
     }
@@ -124,10 +138,10 @@ class AzureManager {
         def vms = azure.virtualMachines()
 
         if(async) {
-            vms.powerOffAsync(resourceGroup, name).await()
+            vms.powerOffAsync(resourceGroups[0], name).await()
 
         }else{
-            vms.powerOff(resourceGroup, name)
+            vms.powerOff(resourceGroups[0], name)
         }
     }
 
