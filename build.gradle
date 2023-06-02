@@ -44,9 +44,11 @@ dependencies {
 
     pluginLibs (group: 'com.microsoft.azure', name: 'azure', version: '1.41.4'){
         exclude group: "com.fasterxml.jackson.core"
+        exclude group: "net.minidev", module: "json-smart"
     }
     pluginLibs (group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.6') {
         exclude group: "com.fasterxml.jackson.core"
+        exclude group: "net.minidev", module: "json-smart"
     }
     pluginLibs group: 'commons-net', name: 'commons-net', version: '3.9.0'
     pluginLibs group: 'commons-io', name: 'commons-io', version: '2.12.0'
@@ -64,8 +66,8 @@ dependencies {
         pluginLibs("com.squareup.retrofit2:adapter-rxjava:2.9.0")  {
             because "retrofit version by azure affected by CVE-2018-1000844"
         }
-        pluginLibs("net.minidev:json-smart:2.4.11")  {
-            because "affected by CVE-2021-31684 CVE-2023-1370 CVE-2021-3168"
+        pluginLibs ('com.nimbusds:nimbus-jose-jwt:9.31') {
+            because "CVE-2023-1370, CVE-2021-31684"
         }
     }
 
