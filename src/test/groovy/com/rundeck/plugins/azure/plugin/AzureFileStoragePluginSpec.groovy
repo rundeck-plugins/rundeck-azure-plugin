@@ -53,6 +53,21 @@ class AzureFileStoragePluginSpec  extends Specification{
         thrown IllegalArgumentException
     }
 
+    def "return true if it was initialized with an imported execution"(){
+        when:
+        boolean isImportedExecution = AzureFileStoragePlugin.isImportedExecution(context)
+
+        then:
+        isImportedExecution == expected
+
+        where:
+        context                      | expected
+        ['isRemoteFilePath': 'asd']  | false
+        ['isRemoteFilePath': 'true'] | true
+        [:]                          | false
+        null                         | false
+    }
+
 
     private HashMap<String, Object> testContext() {
         HashMap<String, Object> stringHashMap = new HashMap<String, Object>();
