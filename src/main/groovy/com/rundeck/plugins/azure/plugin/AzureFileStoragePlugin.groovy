@@ -310,5 +310,8 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         return blob
     }
 
-
+    @Override
+    public String getConfiguredPathTemplate(){
+        return this.path;
+    }
 }
