@@ -131,6 +131,10 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         container.createIfNotExists()
     }
 
+    /**
+     * @param context execution context
+     * @return true if the given context has the expanded path of the log files in the `outputfilepath` variable
+     */
     protected static boolean isImportedExecution(Map<String, ?> context){
         return context != null && context.get("isRemoteFilePath") != null && context.get("isRemoteFilePath") == "true"
     }
