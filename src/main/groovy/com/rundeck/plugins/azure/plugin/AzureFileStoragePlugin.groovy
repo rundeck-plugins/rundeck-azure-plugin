@@ -131,6 +131,14 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         container.createIfNotExists()
     }
 
+    /**
+     * @param context execution context
+     * @return true if the given context has the expanded path of the log files in the `outputfilepath` variable
+     */
+    protected static boolean isImportedExecution(Map<String, ?> context){
+        return context != null && context.get("isRemoteFilePath") != null && context.get("isRemoteFilePath") == "true"
+    }
+
     @Override
     boolean isAvailable(String filetype) throws ExecutionFileStorageException {
         try {
@@ -225,7 +233,10 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
      */
     static String expandPath(String pathFormat, Map<String, ?> context) {
         String result = pathFormat.replaceAll("^/+", "");
-        if (null != context) {
+
+        if(isImportedExecution(context))
+            result = String.valueOf(context.get("outputfilepath").toString())
+        else if (null != context) {
             result = DataContextUtils.replaceDataReferences(
                     result,
                     DataContextUtils.addContext("job", stringMap(context), new HashMap<>()),
@@ -252,12 +263,16 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     }
 
     String getFileName(String fileType){
-        String executionId=context.get(META_EXECID)
-        String project=context.get(META_PROJECT)
+        String fileName
+        if(isImportedExecution(this.context))
+            fileName = expandedPath.substring(expandedPath.indexOf("/"), expandedPath.length()).toLowerCase()
+        else{
+            String executionId=context.get(META_EXECID)
+            String project=context.get(META_PROJECT)
+            fileName = "${project}/${executionId}"
+        }
 
-        String fileName="${project}/${executionId}.${fileType}"
-
-        return fileName
+        return fileName + ".${fileType}"
     }
 
 
@@ -299,5 +314,8 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         return blob
     }
 
-
+    @Override
+    public String getConfiguredPathTemplate(){
+        return this.path;
+    }
 }

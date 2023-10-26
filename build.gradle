@@ -40,7 +40,7 @@ configurations {
 
 dependencies {
     implementation 'org.codehaus.groovy:groovy-all:3.0.9'
-    implementation group: 'org.rundeck', name: 'rundeck-core', version: '4.3.+'
+    implementation group: 'org.rundeck', name: 'rundeck-core', version: '4.17.2-rc1-20231025'
 
     pluginLibs (group: 'com.microsoft.azure', name: 'azure', version: '1.41.4'){
         exclude group: "com.fasterxml.jackson.core"
