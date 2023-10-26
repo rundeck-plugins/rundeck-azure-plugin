@@ -29,6 +29,7 @@ class AzureManager {
     boolean onlyRunningInstances
     boolean debug
     boolean useAzureTags
+    boolean usePrivateIp
 
     Azure azure
 
@@ -106,7 +107,7 @@ class AzureManager {
             VirtualMachineSize size = azure.virtualMachines().sizes().listByRegion(virtualMachine.region()).find{ size-> size.name().equals(virtualMachine.size().toString())}
 
 
-            AzureNode azureNode = new AzureNode(virtualMachine,size, useAzureTags)
+            AzureNode azureNode = new AzureNode(virtualMachine,size, useAzureTags, usePrivateIp)
 
             if(debug){
                 println ("--------- VM Mapping result ---------------")
