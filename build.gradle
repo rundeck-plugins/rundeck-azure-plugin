@@ -1,8 +1,9 @@
 plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.14.1'
+    id 'maven-publish'
 }
 
-group 'com.rundeck'
+group = 'com.github.rundeck-plugins'
 
 ext.rundeckPluginVersion = '1.2'
 ext.pluginClassNames=
@@ -101,5 +102,14 @@ jar {
         attributes 'Rundeck-Plugin-Libs': "${libList}"
     }
     dependsOn(copyToLib)
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = 'rundeck-azure-plugin'
+            from components.java
+        }
+    }
 }
 
