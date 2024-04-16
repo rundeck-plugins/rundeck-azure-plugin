@@ -70,8 +70,8 @@ dependencies {
         pluginLibs("com.squareup.retrofit2:adapter-rxjava:2.9.0")  {
             because "retrofit version by azure affected by CVE-2018-1000844"
         }
-        pluginLibs ('com.nimbusds:nimbus-jose-jwt:9.31') {
-            because "CVE-2023-1370, CVE-2021-31684"
+        pluginLibs ('com.nimbusds:nimbus-jose-jwt:9.37.3') {
+            because "CVE-2023-1370, CVE-2021-31684, CVE-2023-52428"
         }
     }
 
