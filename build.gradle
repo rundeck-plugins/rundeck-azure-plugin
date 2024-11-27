@@ -43,6 +43,9 @@ dependencies {
     implementation 'org.codehaus.groovy:groovy-all:3.0.9'
     implementation group: 'org.rundeck', name: 'rundeck-core', version: '4.17.2-rc1-20231025'
 
+    implementation group: 'commons-io', name: 'commons-io', version: '2.18.0'
+    pluginLibs group: 'commons-net', name: 'commons-net', version: '3.11.1'
+
     pluginLibs (group: 'com.microsoft.azure', name: 'azure', version: '1.41.4'){
         exclude group: "com.fasterxml.jackson.core"
         exclude group: "net.minidev", module: "json-smart"
@@ -53,8 +56,6 @@ dependencies {
         exclude group: "net.minidev", module: "json-smart"
         exclude group: 'com.google.guava', module: 'guava'
     }
-    pluginLibs group: 'commons-net', name: 'commons-net', version: '3.9.0'
-    pluginLibs group: 'commons-io', name: 'commons-io', version: '2.12.0'
 
     // https://mvnrepository.com/artifact/com.microsoft.azure/azure-keyvault-core
     pluginLibs (group: 'com.microsoft.azure', name: 'azure-keyvault-core', version: '1.0.0') {
@@ -89,7 +90,7 @@ jar {
         def libList = configurations.pluginLibs.collect{'lib/' + it.name}.join(' ')
         attributes 'Rundeck-Plugin-Name' : pluginName
         attributes 'Rundeck-Plugin-Description' : pluginDescription
-        attributes 'Rundeck-Plugin-Rundeck-Compatibility-Version': '2.8.2+'
+        attributes 'Rundeck-Plugin-Rundeck-Compatibility-Version': '4.17.0+'
         attributes 'Rundeck-Plugin-Tags': 'java,executor file storage,resource model,workflow step,azure'
         attributes 'Rundeck-Plugin-License': 'Apache 2.0'
         attributes 'Rundeck-Plugin-Source-Link': 'https://github.com/rundeck-plugins/rundeck-azure-plugin'
