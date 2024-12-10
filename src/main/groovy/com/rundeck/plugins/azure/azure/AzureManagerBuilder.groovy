@@ -20,6 +20,7 @@ class AzureManagerBuilder {
     boolean onlyRunningInstances
     Region region
     boolean useAzureTags
+    boolean usePrivateIp
 
     boolean debug
 
@@ -110,6 +111,15 @@ class AzureManagerBuilder {
     }
 
     /**
+     * @param usePrivateIp Use private ip
+     * @return this builder
+     */
+    AzureManagerBuilder usePrivateIp(boolean usePrivateIp){
+        this.usePrivateIp = usePrivateIp
+        return this
+    }
+
+    /**
      * @param region the region to filter machines
      * @return this builder
      */
@@ -161,6 +171,7 @@ class AzureManagerBuilder {
         azure.setTagName(this.tagName)
         azure.setTagValue(this.tagValue)
         azure.setUseAzureTags(this.useAzureTags)
+        azure.setUsePrivatecIp(this.usePrivateIp)
 
         return azure
     }
