@@ -35,6 +35,7 @@ class AzureStorageCopyStepPlugin implements StepPlugin, Describable {
     public static final String ACCESS_KEY = "key"
     public static final String SOURCE = "source"
     public static final String DESTINATION = "destination"
+    public static final String DEFAULT_ENDPOINT_PROTOCOL = "defaultEndpointProtocol"
 
     private static final int DEBUG_LEVEL = 4
 
@@ -52,6 +53,8 @@ class AzureStorageCopyStepPlugin implements StepPlugin, Describable {
             null,null,null, renderingOptionsAuthentication))
             .property(PropertyUtil.string(ACCESS_KEY, "Access Key", "Azure Storage Access Key", true,
             null,null,null, renderingOptionsAuthenticationStorage))
+            .property(PropertyUtil.string(DEFAULT_ENDPOINT_PROTOCOL, "Endpoint Protocol", "Default Endpoint Protocol: http or https ", true,
+            "http", null, null, renderingOptionsAuthentication))
             .property(PropertyUtil.string(SOURCE, "Source", "Azure URI or local path (azure://container/path/file.ext , file://some/path/file.ext)", true,
             null,null,null, renderingOptionsConfig))
             .property(PropertyUtil.string(DESTINATION, " Destination", "Azure URI or local path (azure://container/path/file.ext , file://some/path/file.ext)", true,
@@ -75,6 +78,7 @@ class AzureStorageCopyStepPlugin implements StepPlugin, Describable {
         String accessKeyStoragePath=configuration.get(AzureStorageCopyStepPlugin.ACCESS_KEY)
         String sourcePath=configuration.get(AzureStorageCopyStepPlugin.SOURCE)
         String destinationPath=configuration.get(AzureStorageCopyStepPlugin.DESTINATION)
+        String defaultEndpointProtocol=configuration.get(AzureStorageCopyStepPlugin.DEFAULT_ENDPOINT_PROTOCOL)
 
         URIParser sourceURL = new URIParser(sourcePath)
         URIParser destURL = new URIParser(destinationPath)
@@ -101,8 +105,8 @@ class AzureStorageCopyStepPlugin implements StepPlugin, Describable {
         AzurePluginUtil.printMessage(" Destination => " + destURL.toString(), debug, "info");
         AzurePluginUtil.printMessage("---------------------------------------------------", debug, "info");
 
-        sourceEndpoint = createEndpointHandler(sourceURL, storageName, accessKey)
-        destEndpoint = createEndpointHandler(destURL, storageName, accessKey)
+        sourceEndpoint = createEndpointHandler(sourceURL, storageName, accessKey, defaultEndpointProtocol)
+        destEndpoint = createEndpointHandler(destURL, storageName, accessKey, defaultEndpointProtocol)
 
 
         if(!sourceEndpoint.fileExists(sourceURL.getFile())){
@@ -139,14 +143,14 @@ class AzureStorageCopyStepPlugin implements StepPlugin, Describable {
 
     }
 
-    private EndpointHandler createEndpointHandler(URIParser url, String storageName, String accessKey) throws IOException {
+    private EndpointHandler createEndpointHandler(URIParser url, String storageName, String accessKey, String defaultEndpointProtocol) throws IOException {
 
         switch (url.getProtocol().toLowerCase()) {
             case "file":
                 return FileEndpoint.createEndpointHandler(url);
 
             case "azure":
-                return AzureEndpoint.createEndpointHandler(url, storageName, accessKey);
+                return AzureEndpoint.createEndpointHandler(url, storageName, accessKey, defaultEndpointProtocol);
 
 
             default:
