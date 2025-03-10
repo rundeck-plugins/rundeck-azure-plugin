@@ -28,6 +28,7 @@ Mapping and filter settings
 * **Mapping Params**: Custom mapping settings. Property mapping definitions. Specify multiple mappings in the form "attributeName.selector=selector" or "attributeName.default=value", separated by ";"
 * **Resource Groups**:  Filter using a list of allowed resource groups separated by semicolons (`;`). Eg: `RG1; RG2; RG3`
 * **Only Running Instances**: Filter for the "Running" instances. If false, all instances will be returned.
+* **Use Private Ip**: If enabled, populate node hostname with private ip otherwise public ip is used.
 
 ### Mapping
 
