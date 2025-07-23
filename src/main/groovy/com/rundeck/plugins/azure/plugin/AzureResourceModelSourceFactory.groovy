@@ -1,6 +1,6 @@
 package com.rundeck.plugins.azure.plugin
 
-import com.dtolabs.rundeck.core.common.Framework
+import com.dtolabs.rundeck.core.common.IFramework
 import com.dtolabs.rundeck.core.plugins.Plugin
 import com.dtolabs.rundeck.core.plugins.configuration.ConfigurationException
 import com.dtolabs.rundeck.core.plugins.configuration.Describable
@@ -24,7 +24,7 @@ import java.util.regex.Pattern
 class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Describable {
 
 
-    private Framework framework;
+    private IFramework framework;
 
     public static final String PROVIDER_NAME = "azure-resource-model";
     public static final String PROVIDER_TITLE = "Azure / Resource Model"
@@ -59,7 +59,7 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
     final static Map<String, Object> renderingOptionsAuthenticationStorage = AzurePluginUtil.getRenderOpt("Credentials",false, false, true)
 
 
-    AzureResourceModelSourceFactory(Framework framework) {
+    AzureResourceModelSourceFactory(IFramework framework) {
         this.framework = framework
     }
 

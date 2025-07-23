@@ -1,0 +1,49 @@
+[versions]
+axionRelease = "1.18.18"
+groovy = "3.0.24"
+rundeckCore = "4.17.2-rc1-20231025"
+nexusPublish = "2.0.0"
+azureSdk = "1.41.4"
+azureStorage = "8.6.6"
+azureKeyvaultCore = "1.0.0"
+commonsIo = "2.18.0"
+commonsNet = "3.11.1"
+okhttp = "4.12.0"
+retrofit = "2.9.0"
+nimbusJoseJwt = "9.37.3"
+junit = "4.13.2"
+spock = "2.0-groovy-3.0"
+cglib = "2.2.2"
+objenesis = "1.4"
+bytebuddy = "1.14.10"
+
+
+[libraries]
+rundeckCore = { group = "org.rundeck", name = "rundeck-core", version.ref = "rundeckCore" }
+azure = { group = "com.microsoft.azure", name = "azure", version.ref = "azureSdk" }
+azureStorage = { group = "com.microsoft.azure", name = "azure-storage", version.ref = "azureStorage" }
+azureKeyvaultCore = { group = "com.microsoft.azure", name = "azure-keyvault-core", version.ref = "azureKeyvaultCore" }
+
+# Groovy
+groovyAll = { group = "org.codehaus.groovy", name = "groovy-all", version.ref = "groovy" }
+
+# HTTP and Networking
+commonsIo = { group = "commons-io", name = "commons-io", version.ref = "commonsIo" }
+commonsNet = { group = "commons-net", name = "commons-net", version.ref = "commonsNet" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+retrofitAdapterRxjava = { group = "com.squareup.retrofit2", name = "adapter-rxjava", version.ref = "retrofit" }
+nimbusJoseJwt = { group = "com.nimbusds", name = "nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
+
+# Testing
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+spockCore = { group = "org.spockframework", name = "spock-core", version.ref = "spock" }
+cglibNodep = { group = "cglib", name = "cglib-nodep", version.ref = "cglib" }
+objenesis = { group = "org.objenesis", name = "objenesis", version.ref = "objenesis" }
+bytebuddy = { group = "net.bytebuddy", name = "byte-buddy", version.ref = "bytebuddy" }
+
+[bundles]
+testLibs = ["groovyAll", "junit","spockCore", "cglibNodep", "objenesis", "bytebuddy"]
+
+[plugins]
+axionRelease = { id = "pl.allegro.tech.build.axion-release", version.ref = "axionRelease" }
+nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }
