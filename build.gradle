@@ -41,7 +41,7 @@ configurations {
 
 dependencies {
     implementation 'org.codehaus.groovy:groovy-all:3.0.9'
-    implementation group: 'org.rundeck', name: 'rundeck-core', version: '5.14.0-20250804'
+    implementation group: 'org.rundeck', name: 'rundeck-core', version: '5.14.0-rc1-20250722'
 
     implementation group: 'commons-io', name: 'commons-io', version: '2.18.0'
     pluginLibs group: 'commons-net', name: 'commons-net', version: '3.11.1'
