@@ -24,7 +24,6 @@ azure = { group = "com.microsoft.azure", name = "azure", version.ref = "azureSdk
 azureStorage = { group = "com.microsoft.azure", name = "azure-storage", version.ref = "azureStorage" }
 azureKeyvaultCore = { group = "com.microsoft.azure", name = "azure-keyvault-core", version.ref = "azureKeyvaultCore" }
 
-# Groovy
 groovyAll = { group = "org.codehaus.groovy", name = "groovy-all", version.ref = "groovy" }
 
 # HTTP and Networking
