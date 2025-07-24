@@ -1,34 +1,41 @@
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.14.1'
-    id 'maven-publish'
+    id 'java'
+    id 'groovy'
+    id 'idea'
+    alias(libs.plugins.axionRelease)
+    alias(libs.plugins.nexusPublish)
 }
 
-group = 'com.github.rundeck-plugins'
-
-ext.rundeckPluginVersion = '1.2'
+group = 'org.rundeck.plugins'
 ext.pluginClassNames=
         'com.rundeck.plugins.azure.plugin.AzureResourceModelSourceFactory,com.rundeck.plugins.azure.plugin.AzureFileStoragePlugin,com.rundeck.plugins.azure.plugin.AzureStorageCopyStepPlugin,com.rundeck.plugins.azure.plugin.AzureStorageListStepPlugin,com.rundeck.plugins.azure.plugin.AzureStorageDeleteStepPlugin,com.rundeck.plugins.azure.plugin.AzureVMCreatePlugin,com.rundeck.plugins.azure.plugin.AzureVmStartPlugin,com.rundeck.plugins.azure.plugin.AzureVmStopPlugin,com.rundeck.plugins.azure.plugin.AzureVmListPlugin'
 ext.pluginName = 'Azure Rundeck Plugin'
 ext.pluginDescription = 'Azure Plugin integrates Rundeck with Azure Virtual Machines and Azure Storage. The plugin contains a Resource Model plugin, an Execution Log Storage plugin, and others plugin steps like Create/Start/Stop Azure VMs.'
+ext.publishName = "Azure Rundeck Plugin ${project.version}"
+ext.githubSlug = 'rundeck-plugins/azure-plugin'
+ext.developers = [
+        [id: 'gschueler', name: 'Greg Schueler', email: 'greg@rundeck.com']
+]
 
-apply plugin: 'groovy'
-apply plugin: 'java'
-
-sourceCompatibility = 1.8
+ext.rundeckPluginVersion = '1.2'
 
 scmVersion {
     tag {
-        prefix = ''
+        prefix = 'v'
         versionSeparator = ''
     }
+    ignoreUncommittedChanges = true
 }
-project.version = scmVersion.version
+
+allprojects {
+    project.version = scmVersion.version
+    apply from: "${rootDir}/gradle/java.gradle"
+}
 
 repositories {
     mavenCentral()
     mavenLocal()
 }
-
 
 
 configurations {
@@ -40,48 +47,40 @@ configurations {
 }
 
 dependencies {
-    implementation 'org.codehaus.groovy:groovy-all:3.0.9'
-    implementation group: 'org.rundeck', name: 'rundeck-core', version: '4.17.2-rc1-20231025'
+    implementation libs.rundeckCore
+    implementation libs.groovyAll
 
-    implementation group: 'commons-io', name: 'commons-io', version: '2.18.0'
-    pluginLibs group: 'commons-net', name: 'commons-net', version: '3.11.1'
+    implementation libs.commonsIo
+    pluginLibs libs.commonsNet
 
-    pluginLibs (group: 'com.microsoft.azure', name: 'azure', version: '1.41.4'){
+    pluginLibs(libs.azure) {
         exclude group: "com.fasterxml.jackson.core"
-        exclude group: "net.minidev", module: "json-smart"
         exclude group: 'com.google.guava', module: 'guava'
     }
-    pluginLibs (group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.6') {
+    pluginLibs libs.jsonSmart
+    pluginLibs(libs.azureStorage) {
         exclude group: "com.fasterxml.jackson.core"
-        exclude group: "net.minidev", module: "json-smart"
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+    pluginLibs(libs.azureKeyvaultCore) {
         exclude group: 'com.google.guava', module: 'guava'
     }
 
-    // https://mvnrepository.com/artifact/com.microsoft.azure/azure-keyvault-core
-    pluginLibs (group: 'com.microsoft.azure', name: 'azure-keyvault-core', version: '1.0.0') {
-        exclude group: 'com.google.guava', module: 'guava'
-    }
-
-    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    testImplementation "org.codehaus.groovy:groovy-all:3.0.9"
-    testImplementation "org.spockframework:spock-core:2.0-groovy-3.0"
-    testImplementation "cglib:cglib-nodep:2.2.2"
-    testImplementation 'org.objenesis:objenesis:1.4'
+    testImplementation libs.bundles.testLibs
 
     constraints {
-        pluginLibs("com.squareup.retrofit2:adapter-rxjava:2.9.0")  {
+        pluginLibs(libs.retrofitAdapterRxjava) {
             because "retrofit version by azure affected by CVE-2018-1000844"
         }
-        pluginLibs ('com.nimbusds:nimbus-jose-jwt:9.37.3') {
+        pluginLibs(libs.nimbusJoseJwt) {
             because "CVE-2023-1370, CVE-2021-31684, CVE-2023-52428"
         }
-        // Pins the version to avoid  a dependency on okhttp 3.14.9 that suffers from the CVE.
+        // Pins the version to avoid a dependency on okhttp 3.14.9 that suffers from the CVE.
         // This version of okhttp is inline with the one used in Rundeck 5.9.x
-        pluginLibs ('com.squareup.okhttp3:okhttp:4.12.0') {
+        pluginLibs(libs.okhttp) {
             because "CVE-2023-3635"
         }
     }
-
 }
 
 task copyToLib(type: Copy) {
@@ -110,12 +109,20 @@ jar {
     dependsOn(copyToLib)
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifactId = 'rundeck-azure-plugin'
-            from components.java
+jar.dependsOn(copyToLib)
+
+test {
+    useJUnitPlatform()
+}
+
+nexusPublishing {
+    packageGroup = 'org.rundeck.plugins'
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
         }
     }
 }
 
+apply from: "${rootDir}/gradle/publishing.gradle"
