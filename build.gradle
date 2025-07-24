@@ -55,12 +55,11 @@ dependencies {
 
     pluginLibs(libs.azure) {
         exclude group: "com.fasterxml.jackson.core"
-        exclude group: "net.minidev", module: "json-smart"
         exclude group: 'com.google.guava', module: 'guava'
     }
+    pluginLibs libs.jsonSmart
     pluginLibs(libs.azureStorage) {
         exclude group: "com.fasterxml.jackson.core"
-        exclude group: "net.minidev", module: "json-smart"
         exclude group: 'com.google.guava', module: 'guava'
     }
     pluginLibs(libs.azureKeyvaultCore) {
