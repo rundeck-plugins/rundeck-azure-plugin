@@ -75,6 +75,9 @@ dependencies {
         pluginLibs(libs.nimbusJoseJwt) {
             because "CVE-2023-1370, CVE-2021-31684, CVE-2023-52428"
         }
+        pluginLibs(libs.jsonSmart) {
+            because "CVE-2023-1370 - upgrade from 2.4.2 to 2.5.0"
+        }
         // Pins the version to avoid a dependency on okhttp 3.14.9 that suffers from the CVE.
         // This version of okhttp is inline with the one used in Rundeck 5.9.x
         pluginLibs(libs.okhttp) {
