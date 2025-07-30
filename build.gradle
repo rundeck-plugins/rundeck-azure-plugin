@@ -37,6 +37,11 @@ repositories {
     mavenLocal()
 }
 
+// Force resolution of json-smart to mitigate CVE-2023-1370
+configurations.all {
+    resolutionStrategy.force 'net.minidev:json-smart:2.5.0'
+}
+
 
 configurations {
     pluginLibs
@@ -69,6 +74,18 @@ dependencies {
     testImplementation libs.bundles.testLibs
 
     constraints {
+        implementation(libs.retrofitAdapterRxjava) {
+            because "retrofit version by azure affected by CVE-2018-1000844"
+        }
+        implementation(libs.nimbusJoseJwt) {
+            because "CVE-2023-1370, CVE-2021-31684, CVE-2023-52428"
+        }
+        implementation(libs.jsonSmart) {
+            because "CVE-2023-1370 - upgrade from 2.4.2 to 2.5.0"
+        }
+        implementation(libs.okhttp) {
+            because "CVE-2023-3635"
+        }
         pluginLibs(libs.retrofitAdapterRxjava) {
             because "retrofit version by azure affected by CVE-2018-1000844"
         }
