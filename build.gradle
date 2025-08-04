@@ -39,7 +39,12 @@ repositories {
 
 // Force resolution of json-smart to mitigate CVE-2023-1370
 configurations.all {
-    resolutionStrategy.force 'net.minidev:json-smart:2.5.0'
+    resolutionStrategy {
+        force 'net.minidev:json-smart:2.5.0'
+        dependencySubstitution {
+            substitute module('net.minidev:json-smart:2.4.2') using module('net.minidev:json-smart:2.5.0') because 'CVE-2023-1370'
+        }
+    }
 }
 
 
@@ -61,6 +66,7 @@ dependencies {
     pluginLibs(libs.azure) {
         exclude group: "com.fasterxml.jackson.core"
         exclude group: 'com.google.guava', module: 'guava'
+        exclude group: 'net.minidev', module: 'json-smart'
     }
     pluginLibs libs.jsonSmart
     pluginLibs(libs.azureStorage) {
