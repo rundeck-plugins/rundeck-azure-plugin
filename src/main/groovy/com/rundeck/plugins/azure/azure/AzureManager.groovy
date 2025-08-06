@@ -64,7 +64,7 @@ class AzureManager {
         List<VirtualMachine> list = new LinkedList<>()
 
         if(resourceGroups.isEmpty()){
-            list = new ArrayList<>(vms.list())
+            list.addAll(new ArrayList<>(vms.list()))
         }else{
             StringBuilder errorMsgs = new StringBuilder()
             for(String rg : resourceGroups)
