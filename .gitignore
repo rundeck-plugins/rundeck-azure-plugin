@@ -6,3 +6,5 @@ out
 .gradle
 .idea
 .DS_Store
+bin
+lib

@@ -50,7 +50,7 @@ class AzureManager {
 
         if(this.pfxCertificatePath!=null && this.pfxCertificatePassword!=null){
             credentials = new ApplicationTokenCredentials(
-                    this.clientId, this.tenantId, this.pfxCertificatePath, this.pfxCertificatePassword, AzureEnvironment.AZURE);
+                    this.clientId, this.tenantId, this.pfxCertificatePath as byte[], this.pfxCertificatePassword, AzureEnvironment.AZURE);
             azure = Azure.authenticate(credentials).withSubscription(subscriptionId);
         }
 
@@ -64,12 +64,12 @@ class AzureManager {
         List<VirtualMachine> list = new LinkedList<>()
 
         if(resourceGroups.isEmpty()){
-            list = vms.list()
+            list.addAll(new ArrayList<>(vms.list()))
         }else{
             StringBuilder errorMsgs = new StringBuilder()
             for(String rg : resourceGroups)
                 try{
-                    list.addAll(vms.listByResourceGroup(rg))
+                    list.addAll(new ArrayList<>(vms.listByResourceGroup(rg)))
                 }catch(CloudException requestError){
                     errorMsgs.append("\n" + requestError.getLocalizedMessage())
                     if(debug){
