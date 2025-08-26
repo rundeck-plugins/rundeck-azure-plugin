@@ -1,7 +1,7 @@
 [versions]
 axionRelease = "1.18.18"
 groovy = "3.0.24"
-rundeckCore = "5.14.0-rc1-20250722"
+rundeckCore = "5.15.0-rc1-20250821"
 nexusPublish = "2.0.0"
 azureSdk = "1.41.4"
 azureStorage = "8.6.6"
@@ -11,7 +11,8 @@ commonsNet = "3.11.1"
 okhttp = "4.12.0"
 retrofit = "2.9.0"
 nimbusJoseJwt = "9.37.3"
-jsonSmart = "2.5.0"
+oauth2OidcSdk = "11.20.1"
+jsonSmart = "2.5.2"
 junit = "4.13.2"
 spock = "2.0-groovy-3.0"
 cglib = "2.2.2"
@@ -33,6 +34,7 @@ commonsNet = { group = "commons-net", name = "commons-net", version.ref = "commo
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 retrofitAdapterRxjava = { group = "com.squareup.retrofit2", name = "adapter-rxjava", version.ref = "retrofit" }
 nimbusJoseJwt = { group = "com.nimbusds", name = "nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
+oauth2OidcSdk = { group = "com.nimbusds", name = "oauth2-oidc-sdk", version.ref = "oauth2OidcSdk" }
 jsonSmart = { group = "net.minidev", name = "json-smart", version.ref = "jsonSmart" }
 
 # Testing
