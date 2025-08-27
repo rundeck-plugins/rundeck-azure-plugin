@@ -25,7 +25,7 @@ class AzureNode {
 
     }
 
-    AzureNode(VirtualMachine vm, VirtualMachineSize size, boolean useAzureTags) {
+    AzureNode(VirtualMachine vm, VirtualMachineSize size, boolean useAzureTags, boolean usePrivateIp) {
 
         this.size = size
         //basic attributes
@@ -38,7 +38,11 @@ class AzureNode {
 
         this.username = vm.osProfile()?.adminUsername()
 
-        this.hostname = vm.getPrimaryPublicIPAddress()?.ipAddress()
+        if (usePrivateIp) {
+            this.hostname = vm.primaryNetworkInterface.primaryPrivateIP()
+        } else {
+            this.hostname = vm.getPrimaryPublicIPAddress()?.ipAddress()
+        }
 
         if(this.hostname==null){
             //the offline machines doesn't have a IP selected
