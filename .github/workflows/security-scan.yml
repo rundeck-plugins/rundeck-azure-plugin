@@ -1,0 +1,49 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  snyk_security:
+    name: Snyk Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          
+      - name: Install Snyk CLI
+        run: |
+          curl -Lo snyk https://github.com/snyk/cli/releases/latest/download/snyk-linux
+          chmod +x snyk
+          sudo mv snyk /usr/local/bin/
+          
+      - name: Configure Snyk organization
+        run: snyk config set org='rundeck-core-mtgfa3XPaKGbFtHj9aRXhg'
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          
+      - name: Run Snyk monitor (main branch only)
+        if: github.ref == 'refs/heads/main'
+        run: snyk monitor --detection-depth=10 || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          
+      - name: Skip monitor for non-main branch
+        if: github.ref != 'refs/heads/main'
+        run: echo "Skipping monitor for non-main branch - no data sent to dashboard"
+        
+      - name: Test for vulnerabilities
+        run: snyk test --detection-depth=10 || true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
