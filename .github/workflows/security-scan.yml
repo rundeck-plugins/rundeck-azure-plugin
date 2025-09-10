@@ -35,7 +35,7 @@ jobs:
           
       - name: Run Snyk monitor (main branch only)
         if: github.ref == 'refs/heads/main'
-        run: snyk monitor --detection-depth=10 || true
+        run: snyk monitor --detection-depth=10
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           
