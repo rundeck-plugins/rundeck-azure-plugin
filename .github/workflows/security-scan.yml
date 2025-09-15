@@ -46,11 +46,11 @@ jobs:
           
       - name: Run Snyk monitor (main/master branch only)
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: snyk monitor --detection-depth=10
+        run: snyk monitor --all-projects --detection-depth=10
           
       - name: Skip monitor for non-main/master branch
         if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master'
         run: echo "Skipping monitor for non-main/master branch - no data sent to dashboard"
         
       - name: Test for vulnerabilities
-        run: snyk test --detection-depth=10 || true
+        run: snyk test --all-projects --detection-depth=10 || true
