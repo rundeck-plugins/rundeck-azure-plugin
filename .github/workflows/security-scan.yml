@@ -32,6 +32,11 @@ jobs:
         run: snyk config set org='rundeck-core-mtgfa3XPaKGbFtHj9aRXhg'
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Confirm Snyk Identity
+        run: snyk whoami --experimental
+        env: 
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           
       - name: Run Snyk monitor (main branch only)
         run: snyk monitor --detection-depth=10
