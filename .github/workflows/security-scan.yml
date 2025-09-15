@@ -27,6 +27,12 @@ jobs:
           curl -Lo snyk https://github.com/snyk/cli/releases/latest/download/snyk-linux
           chmod +x snyk
           sudo mv snyk /usr/local/bin/
+      
+      - name: Verify Snyk installation
+        run: snyk --version
+
+      - name: Snyk Clear Config (logout)
+        run: snyk config clear
           
       - name: Configure Snyk organization
         run: snyk config set org='rundeck-core-mtgfa3XPaKGbFtHj9aRXhg'
