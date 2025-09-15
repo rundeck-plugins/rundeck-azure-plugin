@@ -14,7 +14,7 @@ jobs:
     
     env:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      SNYK_ORG_ID: ${{ vars.SNYK_ORG_ID }}
+      SNYK_ORG_ID: ${{ secrets.SNYK_ORG_ID }}
     
     steps:
       - name: Checkout code
