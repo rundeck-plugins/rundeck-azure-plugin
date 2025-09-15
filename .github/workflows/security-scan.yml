@@ -38,7 +38,7 @@ jobs:
         run: snyk config clear
           
       - name: Configure Snyk organization
-        run: snyk config set org='rundeck-core-mtgfa3XPaKGbFtHj9aRXhg'
+        run: snyk config set org='${{ secrets.SNYK_ORG_ID }}'
 
       - name: Confirm Snyk Identity
         run: snyk whoami --experimental
