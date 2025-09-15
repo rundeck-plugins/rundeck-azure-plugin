@@ -2,9 +2,9 @@ name: Security Scan
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, snyk-scan ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, snyk-scan ]
   workflow_dispatch:
 
 jobs:
