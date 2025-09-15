@@ -14,6 +14,7 @@ jobs:
     
     env:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      SNYK_ORG_ID: ${{ vars.SNYK_ORG_ID }}
     
     steps:
       - name: Checkout code
@@ -38,7 +39,7 @@ jobs:
         run: snyk config clear
           
       - name: Configure Snyk organization
-        run: snyk config set org='${{ secrets.SNYK_ORG_ID }}'
+        run: snyk config set org='${{ env.SNYK_ORG_ID }}'
 
       - name: Confirm Snyk Identity
         run: snyk whoami --experimental
