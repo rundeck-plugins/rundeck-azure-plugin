@@ -2,15 +2,18 @@ name: Security Scan
 
 on:
   push:
-    branches: [ main, master, snyk-scan ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, master, snyk-scan ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   snyk_security:
     name: Snyk Security Scan
     runs-on: ubuntu-latest
+    
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     
     steps:
       - name: Checkout code
@@ -36,25 +39,17 @@ jobs:
           
       - name: Configure Snyk organization
         run: snyk config set org='rundeck-core-mtgfa3XPaKGbFtHj9aRXhg'
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Confirm Snyk Identity
         run: snyk whoami --experimental
-        env: 
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           
-      - name: Run Snyk monitor (main branch only)
-        if: github.ref == 'refs/heads/main'
+      - name: Run Snyk monitor (main/master branch only)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         run: snyk monitor --detection-depth=10
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           
-      - name: Skip monitor for non-main branch
-        if: github.ref != 'refs/heads/main'
-        run: echo "Skipping monitor for non-main branch - no data sent to dashboard"
+      - name: Skip monitor for non-main/master branch
+        if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master'
+        run: echo "Skipping monitor for non-main/master branch - no data sent to dashboard"
         
       - name: Test for vulnerabilities
         run: snyk test --detection-depth=10 || true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
