@@ -39,7 +39,20 @@ repositories {
 
 // Force resolution of json-smart to mitigate CVE-2023-1370
 configurations.all {
-    resolutionStrategy.force 'net.minidev:json-smart:2.5.0'
+    resolutionStrategy {
+        force 'net.minidev:json-smart:2.5.2'
+        dependencySubstitution {
+            substitute module('net.minidev:json-smart:2.4.2') using module('net.minidev:json-smart:2.5.2') because 'CVE-2023-1370'
+        }
+        // Explicitly reject vulnerable versions
+        componentSelection {
+            withModule('net.minidev:json-smart') { ComponentSelection selection ->
+                if (selection.candidate.version == '2.4.2') {
+                    selection.reject('Vulnerable to CVE-2023-1370')
+                }
+            }
+        }
+    }
 }
 
 
@@ -61,6 +74,7 @@ dependencies {
     pluginLibs(libs.azure) {
         exclude group: "com.fasterxml.jackson.core"
         exclude group: 'com.google.guava', module: 'guava'
+        exclude group: 'net.minidev', module: 'json-smart'
     }
     pluginLibs libs.jsonSmart
     pluginLibs(libs.azureStorage) {
@@ -80,8 +94,11 @@ dependencies {
         implementation(libs.nimbusJoseJwt) {
             because "CVE-2023-1370, CVE-2021-31684, CVE-2023-52428"
         }
+        implementation(libs.oauth2OidcSdk) {
+            because "CVE-2023-1370 - upgrade to version that doesn't depend on vulnerable json-smart"
+        }
         implementation(libs.jsonSmart) {
-            because "CVE-2023-1370 - upgrade from 2.4.2 to 2.5.0"
+            because "CVE-2023-1370 - upgrade from 2.4.2 to 2.5.2"
         }
         implementation(libs.okhttp) {
             because "CVE-2023-3635"
@@ -92,8 +109,11 @@ dependencies {
         pluginLibs(libs.nimbusJoseJwt) {
             because "CVE-2023-1370, CVE-2021-31684, CVE-2023-52428"
         }
+        pluginLibs(libs.oauth2OidcSdk) {
+            because "CVE-2023-1370 - upgrade to version that doesn't depend on vulnerable json-smart"
+        }
         pluginLibs(libs.jsonSmart) {
-            because "CVE-2023-1370 - upgrade from 2.4.2 to 2.5.0"
+            because "CVE-2023-1370 - upgrade from 2.4.2 to 2.5.2"
         }
         // Pins the version to avoid a dependency on okhttp 3.14.9 that suffers from the CVE.
         // This version of okhttp is inline with the one used in Rundeck 5.9.x
