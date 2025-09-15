@@ -1,11 +1,10 @@
 name: Snyk Scan
-#comment to trigger snyk scan
 
 on:
   push:
-    branches: [ main, master, snyk-scan ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, master, snyk-scan ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
