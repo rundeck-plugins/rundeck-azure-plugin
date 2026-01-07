@@ -38,6 +38,15 @@ project.version = '1.0.29-grails7-upgrade-test'
 repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+        name = 'Central Portal Snapshots'
+        url = 'https://central.sonatype.com/repository/maven-snapshots/'
+        
+        // Only search this repository for org.rundeck snapshots
+        content {
+            includeGroup('org.rundeck')
+        }
+    }
 }
 
 // Force resolution of json-smart to mitigate CVE-2023-1370
