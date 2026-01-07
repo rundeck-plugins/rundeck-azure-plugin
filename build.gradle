@@ -33,7 +33,7 @@ allprojects {
 }
 
 // Override version for Grails 7 upgrade
-project.version = '1.0.30-grails7-upgrade-test'
+project.version = '1.0.31-grails7-upgrade-test'
 
 repositories {
     mavenCentral()
