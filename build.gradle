@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.nexusPublish)
 }
 
-group = 'com.github.rundeck-plugins'
+group = 'com.rundeck.plugins'
 ext.pluginClassNames=
         'com.rundeck.plugins.azure.plugin.AzureResourceModelSourceFactory,com.rundeck.plugins.azure.plugin.AzureFileStoragePlugin,com.rundeck.plugins.azure.plugin.AzureStorageCopyStepPlugin,com.rundeck.plugins.azure.plugin.AzureStorageListStepPlugin,com.rundeck.plugins.azure.plugin.AzureStorageDeleteStepPlugin,com.rundeck.plugins.azure.plugin.AzureVMCreatePlugin,com.rundeck.plugins.azure.plugin.AzureVmStartPlugin,com.rundeck.plugins.azure.plugin.AzureVmStopPlugin,com.rundeck.plugins.azure.plugin.AzureVmListPlugin'
 ext.pluginName = 'Azure Rundeck Plugin'
@@ -20,20 +20,18 @@ ext.developers = [
 ext.rundeckPluginVersion = '1.2'
 
 scmVersion {
+    ignoreUncommittedChanges = false
     tag {
-        prefix = 'v'
+        prefix = ''           // NO "v" prefix - see PLUGIN_TAGGING_ARCHITECTURE.md
         versionSeparator = ''
     }
-    ignoreUncommittedChanges = true
+    versionCreator 'simple'  // Use simple version creator (just tag name)
 }
 
 allprojects {
     project.version = scmVersion.version
     apply from: "${rootDir}/gradle/java.gradle"
 }
-
-// Override version for Grails 7 upgrade
-project.version = '1.0.31-grails7-upgrade-test'
 
 repositories {
     mavenCentral()
@@ -168,7 +166,7 @@ test {
 }
 
 nexusPublishing {
-    packageGroup = 'com.github.rundeck-plugins'
+    packageGroup = 'com.rundeck.plugins'
     repositories {
         sonatype {
             nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
@@ -178,3 +176,20 @@ nexusPublishing {
 }
 
 apply from: "${rootDir}/gradle/publishing.gradle"
+
+// Add PackageCloud repository
+publishing {
+    repositories {
+        maven {
+            name = "PackageCloudTest"
+            url = uri("https://packagecloud.io/pagerduty/rundeckpro-test/maven2")
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+            credentials(HttpHeaderCredentials) {
+                name = "Authorization"
+                value = "Bearer " + (System.getenv("PKGCLD_WRITE_TOKEN") ?: project.findProperty("pkgcldWriteToken"))
+            }
+        }
+    }
+}
