@@ -12,7 +12,7 @@ ext.pluginClassNames=
 ext.pluginName = 'Azure Rundeck Plugin'
 ext.pluginDescription = 'Azure Plugin integrates Rundeck with Azure Virtual Machines and Azure Storage. The plugin contains a Resource Model plugin, an Execution Log Storage plugin, and others plugin steps like Create/Start/Stop Azure VMs.'
 ext.publishName = "Azure Rundeck Plugin ${project.version}"
-ext.githubSlug = 'rundeck-plugins/azure-plugin'
+ext.githubSlug = 'rundeck-plugins/rundeck-azure-plugin'
 ext.developers = [
         [id: 'gschueler', name: 'Greg Schueler', email: 'greg@rundeck.com']
 ]
@@ -20,11 +20,13 @@ ext.developers = [
 ext.rundeckPluginVersion = '1.2'
 
 scmVersion {
+    ignoreUncommittedChanges = false
     tag {
-        prefix = 'v'
+        prefix = ''           // NO "v" prefix - see PLUGIN_TAGGING_ARCHITECTURE.md
         versionSeparator = ''
     }
-    ignoreUncommittedChanges = true
+    // Axion 1.18+ defaults to versionWithBranch; keep simple so branch name is not baked into the version string.
+    versionCreator 'simple'
 }
 
 allprojects {
@@ -35,6 +37,15 @@ allprojects {
 repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+        name = 'Central Portal Snapshots'
+        url = 'https://central.sonatype.com/repository/maven-snapshots/'
+        
+        // Only search this repository for org.rundeck snapshots
+        content {
+            includeGroup('org.rundeck')
+        }
+    }
 }
 
 // Force resolution of json-smart to mitigate CVE-2023-1370
@@ -65,7 +76,8 @@ configurations {
 }
 
 dependencies {
-    implementation libs.rundeckCore
+    compileOnly libs.rundeckCore
+    testImplementation libs.rundeckCore
     implementation libs.groovyAll
 
     implementation libs.commonsIo
@@ -166,3 +178,20 @@ nexusPublishing {
 }
 
 apply from: "${rootDir}/gradle/publishing.gradle"
+
+// Add PackageCloud repository
+publishing {
+    repositories {
+        maven {
+            name = "PackageCloudTest"
+            url = uri("https://packagecloud.io/pagerduty/rundeckpro-test/maven2")
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+            credentials(HttpHeaderCredentials) {
+                name = "Authorization"
+                value = "Bearer " + (System.getenv("PKGCLD_WRITE_TOKEN") ?: project.findProperty("pkgcldWriteToken"))
+            }
+        }
+    }
+}
