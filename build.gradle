@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.nexusPublish)
 }
 
-group = 'com.rundeck.plugins'
+group = 'org.rundeck.plugins'
 ext.pluginClassNames=
         'com.rundeck.plugins.azure.plugin.AzureResourceModelSourceFactory,com.rundeck.plugins.azure.plugin.AzureFileStoragePlugin,com.rundeck.plugins.azure.plugin.AzureStorageCopyStepPlugin,com.rundeck.plugins.azure.plugin.AzureStorageListStepPlugin,com.rundeck.plugins.azure.plugin.AzureStorageDeleteStepPlugin,com.rundeck.plugins.azure.plugin.AzureVMCreatePlugin,com.rundeck.plugins.azure.plugin.AzureVmStartPlugin,com.rundeck.plugins.azure.plugin.AzureVmStopPlugin,com.rundeck.plugins.azure.plugin.AzureVmListPlugin'
 ext.pluginName = 'Azure Rundeck Plugin'
@@ -75,7 +75,8 @@ configurations {
 }
 
 dependencies {
-    implementation libs.rundeckCore
+    compileOnly libs.rundeckCore
+    testImplementation libs.rundeckCore
     implementation libs.groovyAll
 
     implementation libs.commonsIo
@@ -166,7 +167,7 @@ test {
 }
 
 nexusPublishing {
-    packageGroup = 'com.rundeck.plugins'
+    packageGroup = 'org.rundeck.plugins'
     repositories {
         sonatype {
             nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
