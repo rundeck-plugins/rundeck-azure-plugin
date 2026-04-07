@@ -12,7 +12,7 @@ ext.pluginClassNames=
 ext.pluginName = 'Azure Rundeck Plugin'
 ext.pluginDescription = 'Azure Plugin integrates Rundeck with Azure Virtual Machines and Azure Storage. The plugin contains a Resource Model plugin, an Execution Log Storage plugin, and others plugin steps like Create/Start/Stop Azure VMs.'
 ext.publishName = "Azure Rundeck Plugin ${project.version}"
-ext.githubSlug = 'rundeck-plugins/azure-plugin'
+ext.githubSlug = 'rundeck-plugins/rundeck-azure-plugin'
 ext.developers = [
         [id: 'gschueler', name: 'Greg Schueler', email: 'greg@rundeck.com']
 ]
@@ -25,7 +25,8 @@ scmVersion {
         prefix = ''           // NO "v" prefix - see PLUGIN_TAGGING_ARCHITECTURE.md
         versionSeparator = ''
     }
-    versionCreator 'simple'  // Use simple version creator (just tag name)
+    // Axion 1.18+ defaults to versionWithBranch; keep simple so branch name is not baked into the version string.
+    versionCreator 'simple'
 }
 
 allprojects {
