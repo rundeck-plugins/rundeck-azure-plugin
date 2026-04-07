@@ -1,7 +1,7 @@
 [versions]
 axionRelease = "1.18.18"
 groovy = "3.0.24"
-rundeckCore = "6.0.0-SNAPSHOT"
+rundeckCore = "6.0.0-alpha1-20260407"
 nexusPublish = "2.0.0"
 azureSdk = "1.41.4"
 azureStorage = "8.6.6"
