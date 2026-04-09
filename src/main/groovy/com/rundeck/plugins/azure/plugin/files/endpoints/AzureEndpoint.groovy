@@ -11,9 +11,9 @@ import com.rundeck.plugins.azure.plugin.files.URIParser
  * Created by luistoledo on 11/14/17.
  */
 class AzureEndpoint {
-    public static EndpointHandler createEndpointHandler(final URIParser url, String storageName, String accessKey) throws IOException {
+    public static EndpointHandler createEndpointHandler(final URIParser url, String storageName, String accessKey, String defaultEndpointsProtocol) throws IOException {
 
-        String storageConnectionString = "DefaultEndpointsProtocol=http;AccountName=" + storageName+ ";AccountKey=" + accessKey;
+        String storageConnectionString = "DefaultEndpointsProtocol=" + defaultEndpointsProtocol + ";AccountName=" + storageName+ ";AccountKey=" + accessKey;
 
         String containerName = url.getHost()
 
