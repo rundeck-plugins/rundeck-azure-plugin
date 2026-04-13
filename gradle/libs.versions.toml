@@ -1,6 +1,6 @@
 [versions]
 axionRelease = "1.18.18"
-groovy = "3.0.24"
+groovy = "4.0.29"
 rundeckCore = "6.0.0-alpha1-20260407"
 nexusPublish = "2.0.0"
 azureSdk = "1.41.4"
@@ -14,10 +14,9 @@ nimbusJoseJwt = "9.37.3"
 oauth2OidcSdk = "11.20.1"
 jsonSmart = "2.5.2"
 junit = "4.13.2"
-spock = "2.0-groovy-3.0"
-cglib = "2.2.2"
-objenesis = "1.4"
-bytebuddy = "1.14.10"
+spock = "2.3-groovy-4.0"
+bytebuddy = "1.14.11"
+objenesis = "3.3"
 
 
 [libraries]
@@ -26,7 +25,7 @@ azure = { group = "com.microsoft.azure", name = "azure", version.ref = "azureSdk
 azureStorage = { group = "com.microsoft.azure", name = "azure-storage", version.ref = "azureStorage" }
 azureKeyvaultCore = { group = "com.microsoft.azure", name = "azure-keyvault-core", version.ref = "azureKeyvaultCore" }
 
-groovyAll = { group = "org.codehaus.groovy", name = "groovy-all", version.ref = "groovy" }
+groovyAll = { group = "org.apache.groovy", name = "groovy-all", version.ref = "groovy" }
 
 # HTTP and Networking
 commonsIo = { group = "commons-io", name = "commons-io", version.ref = "commonsIo" }
@@ -40,12 +39,11 @@ jsonSmart = { group = "net.minidev", name = "json-smart", version.ref = "jsonSma
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 spockCore = { group = "org.spockframework", name = "spock-core", version.ref = "spock" }
-cglibNodep = { group = "cglib", name = "cglib-nodep", version.ref = "cglib" }
 objenesis = { group = "org.objenesis", name = "objenesis", version.ref = "objenesis" }
 bytebuddy = { group = "net.bytebuddy", name = "byte-buddy", version.ref = "bytebuddy" }
 
 [bundles]
-testLibs = ["groovyAll", "junit","spockCore", "cglibNodep", "objenesis", "bytebuddy"]
+testLibs = ["groovyAll", "junit","spockCore", "bytebuddy", "objenesis"]
 
 [plugins]
 axionRelease = { id = "pl.allegro.tech.build.axion-release", version.ref = "axionRelease" }
