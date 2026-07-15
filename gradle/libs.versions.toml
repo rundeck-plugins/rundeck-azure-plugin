@@ -1,6 +1,6 @@
 [versions]
 axionRelease = "1.21.2"
-groovy = "4.0.29"
+groovy = "5.0.7"
 rundeckCore = "6.1.0-SNAPSHOT"
 nexusPublish = "2.0.0"
 azureSdk = "1.41.4"
