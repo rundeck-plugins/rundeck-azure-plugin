@@ -9,14 +9,14 @@ import com.dtolabs.rundeck.plugins.ServiceNameConstants
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
 import com.dtolabs.rundeck.plugins.step.StepPlugin
 import com.dtolabs.rundeck.plugins.util.DescriptionBuilder
-import com.microsoft.azure.storage.CloudStorageAccount
-import com.microsoft.azure.storage.StorageException
-import com.microsoft.azure.storage.blob.CloudBlobClient
-import com.microsoft.azure.storage.blob.CloudBlobContainer
-import com.microsoft.azure.storage.blob.CloudBlobDirectory
-import com.microsoft.azure.storage.blob.CloudBlockBlob
+import com.azure.storage.blob.BlobContainerClient
+import com.azure.storage.blob.models.BlobItem
+import com.azure.storage.blob.models.ListBlobsOptions
+import com.rundeck.plugins.azure.azure.AzureBlobStorageClientFactory
 import com.rundeck.plugins.azure.util.AzurePluginUtil
 import groovy.json.JsonOutput
+
+import java.time.format.DateTimeFormatter
 
 /**
  * Created by luistoledo on 11/15/17.
@@ -67,24 +67,19 @@ class AzureStorageListStepPlugin implements StepPlugin, Describable {
 
         String accessKey = AzurePluginUtil.getPasswordFromKeyStorage(accessKeyStoragePath,context);
 
-        String storageConnectionString = "DefaultEndpointsProtocol=http;AccountName=" + storageName + ";AccountKey=" + accessKey;
-
-        CloudStorageAccount account = CloudStorageAccount.parse(storageConnectionString);
-        CloudBlobClient serviceClient = account.createCloudBlobClient();
-        CloudBlobContainer container = null
+        BlobContainerClient container
         try{
-            container = serviceClient.getContainerReference(containerName)
-        }catch(URISyntaxException| StorageException e){
+            container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, "http")
+        }catch(IllegalArgumentException e){
             throw new IllegalArgumentException("Error getting the container Name");
         }
 
         List list = new ArrayList()
 
-        container.listBlobs().each { object ->
-            if(object instanceof CloudBlobDirectory){
-                CloudBlobDirectory folder = (CloudBlobDirectory) object
-                list.add([name:folder.getUri().toString(),
-                          container:folder.getContainer().getName(),
+        container.listBlobsByHierarchy("/").each { BlobItem object ->
+            if(Boolean.TRUE.equals(object.isPrefix())){
+                list.add([name:object.getName(),
+                          container:container.getBlobContainerName(),
                           uri:"",
                           lastModified:"",
                           length:"",
@@ -92,11 +87,11 @@ class AzureStorageListStepPlugin implements StepPlugin, Describable {
                           contentType:""])
 
                 if(recursive){
-                    list.addAll(listBlobs(folder.listBlobs()))
+                    list.addAll(listBlobs(container, object.getName()))
                 }
 
             }else{
-                list.add(printBlob(object))
+                list.add(printBlob(container, object))
             }
 
         }
@@ -109,27 +104,37 @@ class AzureStorageListStepPlugin implements StepPlugin, Describable {
     }
 
 
-    def listBlobs = { container ->
+    def listBlobs = { BlobContainerClient container, String prefix ->
 
         List list = new ArrayList()
-        container.each{blob->
-            list.add(printBlob(blob))
+        container.listBlobsByHierarchy("/", new ListBlobsOptions().setPrefix(prefix), null).each { BlobItem item ->
+            if(Boolean.TRUE.equals(item.isPrefix())){
+                list.add([name:item.getName(),
+                          container:container.getBlobContainerName(),
+                          uri:"",
+                          lastModified:"",
+                          length:"",
+                          type:"FOLDER",
+                          contentType:""])
+                list.addAll(listBlobs(container, item.getName()))
+            }else{
+                list.add(printBlob(container, item))
+            }
         }
 
         return list
     }
 
-    def printBlob = { blob ->
-        CloudBlockBlob retrievedBlob = (CloudBlockBlob) blob;
+    def printBlob = { BlobContainerClient container, BlobItem blob ->
+        def properties = blob.getProperties()
 
-
-        return [name:retrievedBlob.getName(),
-                container:retrievedBlob.getContainer().getName(),
-                uri:retrievedBlob.getUri().toString(),
-                lastModified:retrievedBlob.getProperties().getLastModified().format("yyyy/MM/dd HH:mm:ss"),
-                length:retrievedBlob.getProperties().getLength(),
-                type:retrievedBlob.getProperties().getBlobType(),
-                contentType:retrievedBlob.getProperties().getContentType()]
+        return [name:blob.getName(),
+                container:container.getBlobContainerName(),
+                uri:container.getBlobClient(blob.getName()).getBlobUrl(),
+                lastModified:properties.getLastModified()?.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),
+                length:properties.getContentLength(),
+                type:properties.getBlobType(),
+                contentType:properties.getContentType()]
 
     }
     def printMetadata ={meta->

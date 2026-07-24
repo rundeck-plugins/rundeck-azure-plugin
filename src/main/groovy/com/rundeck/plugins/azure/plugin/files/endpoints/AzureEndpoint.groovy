@@ -1,9 +1,8 @@
 package com.rundeck.plugins.azure.plugin.files.endpoints
 
-import com.microsoft.azure.storage.CloudStorageAccount
-import com.microsoft.azure.storage.blob.CloudBlobClient
-import com.microsoft.azure.storage.blob.CloudBlobContainer
-import com.microsoft.azure.storage.blob.CloudBlockBlob
+import com.azure.storage.blob.BlobClient
+import com.azure.storage.blob.BlobContainerClient
+import com.rundeck.plugins.azure.azure.AzureBlobStorageClientFactory
 import com.rundeck.plugins.azure.plugin.files.EndpointHandler
 import com.rundeck.plugins.azure.plugin.files.URIParser
 
@@ -13,14 +12,9 @@ import com.rundeck.plugins.azure.plugin.files.URIParser
 class AzureEndpoint {
     public static EndpointHandler createEndpointHandler(final URIParser url, String storageName, String accessKey) throws IOException {
 
-        String storageConnectionString = "DefaultEndpointsProtocol=http;AccountName=" + storageName+ ";AccountKey=" + accessKey;
-
         String containerName = url.getHost()
 
-        CloudStorageAccount account = CloudStorageAccount.parse(storageConnectionString);
-        CloudBlobClient serviceClient = account.createCloudBlobClient();
-
-        CloudBlobContainer container = serviceClient.getContainerReference(containerName)
+        BlobContainerClient container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, "http")
         container.createIfNotExists()
 
         OutputStream outputStream=null
@@ -34,8 +28,8 @@ class AzureEndpoint {
             @Override
             List<String> listFiles(String path) throws IOException {
                 List<String> list = new ArrayList<>()
-                container.listBlobs().each {blog->
-                    list.add(blog.getUri().path)
+                container.listBlobs().each {blob->
+                    list.add(new URI(container.getBlobClient(blob.getName()).getBlobUrl()).getPath())
                 }
                 return list
             }
@@ -77,8 +71,8 @@ class AzureEndpoint {
             @Override
             boolean fileExists(String path) throws IOException {
                 String fileName = path.substring(1,path.length())
-                CloudBlockBlob blob = container.getBlockBlobReference(fileName);
-                return blob.exists()
+                BlobClient blob = container.getBlobClient(fileName);
+                return Boolean.TRUE.equals(blob.exists())
             }
 
             boolean upload() throws IOException {
@@ -87,7 +81,7 @@ class AzureEndpoint {
 
                 tempFile=new File(tempFile.getAbsolutePath())
 
-                CloudBlockBlob blob = container.getBlockBlobReference(fileName);
+                BlobClient blob = container.getBlobClient(fileName);
                 blob.upload(new FileInputStream(tempFile), tempFile.length());
 
                 tempFile.delete()
@@ -98,10 +92,10 @@ class AzureEndpoint {
             InputStream download(String path) throws IOException {
                 String fileName = path.substring(1,path.length())
 
-                CloudBlockBlob blob = container.getBlockBlobReference(fileName);
+                BlobClient blob = container.getBlobClient(fileName);
 
                 tempFile = File.createTempFile("azure-transfer", "tmp", null);
-                blob.download(new FileOutputStream(tempFile))
+                blob.downloadStream(new FileOutputStream(tempFile))
 
                 InputStream result = new BufferedInputStream(new FileInputStream(tempFile.getAbsolutePath()))
 

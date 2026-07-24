@@ -2,24 +2,24 @@ package com.rundeck.plugins.azure.azure
 
 import com.dtolabs.rundeck.core.plugins.configuration.PropertyValidator
 import com.dtolabs.rundeck.core.plugins.configuration.ValidationException
-import com.microsoft.azure.management.compute.KnownLinuxVirtualMachineImage
-import com.microsoft.azure.management.compute.KnownWindowsVirtualMachineImage
+import com.azure.resourcemanager.compute.models.KnownLinuxVirtualMachineImage
+import com.azure.resourcemanager.compute.models.KnownWindowsVirtualMachineImage
 
 /**
  * Created by luistoledo on 11/16/17.
  */
 class AzureVmImageType {
-    public static final List<String> VM_IMAGE_TYPE = [AzureVmImageType.LinuxType.UBUNTU_SERVER_16_04_LTS,
-                                                      AzureVmImageType.LinuxType.UBUNTU_SERVER_14_04_LTS,
-                                                      AzureVmImageType.LinuxType.CENTOS_7_2,
-                                                      AzureVmImageType.LinuxType.DEBIAN_8,
-                                                      AzureVmImageType.LinuxType.SLES_12_SP1,
-                                                      AzureVmImageType.LinuxType.OPENSUSE_LEAP_42_1,
-                                                      AzureVmImageType.WindowsType.WINDOWS_SERVER_2008_R2_SP1,
+    public static final List<String> VM_IMAGE_TYPE = [AzureVmImageType.LinuxType.UBUNTU_SERVER_20_04_LTS,
+                                                      AzureVmImageType.LinuxType.UBUNTU_SERVER_18_04_LTS,
+                                                      AzureVmImageType.LinuxType.CENTOS_8_3,
+                                                      AzureVmImageType.LinuxType.DEBIAN_10,
+                                                      AzureVmImageType.LinuxType.SLES_15,
+                                                      AzureVmImageType.LinuxType.OPENSUSE_LEAP_15,
+                                                      AzureVmImageType.WindowsType.WINDOWS_SERVER_2019_DATACENTER,
+                                                      AzureVmImageType.WindowsType.WINDOWS_SERVER_2016_DATACENTER,
                                                       AzureVmImageType.WindowsType.WINDOWS_SERVER_2012_R2_DATACENTER,
-                                                      AzureVmImageType.WindowsType.WINDOWS_SERVER_2012_DATACENTER,
-                                                      AzureVmImageType.WindowsType.WINDOWS_SERVER_2016_TECHNICAL_PREVIEW_WITH_CONTAINERS,
-                                                      AzureVmImageType.WindowsType.WINDOWS_SERVER_TECHNICAL_PREVIEW
+                                                      AzureVmImageType.WindowsType.WINDOWS_SERVER_2019_DATACENTER_WITH_CONTAINERS,
+                                                      AzureVmImageType.WindowsType.WINDOWS_DESKTOP_10_PRO
     ]
 
     @Override
@@ -29,12 +29,19 @@ class AzureVmImageType {
 
 
     enum LinuxType {
-        UBUNTU_SERVER_14_04_LTS("UBUNTU_SERVER_14_04_LTS"),
         UBUNTU_SERVER_16_04_LTS("UBUNTU_SERVER_16_04_LTS"),
-        CENTOS_7_2("CENTOS_7_2"),
-        DEBIAN_8("DEBIAN_8"),
-        SLES_12_SP1("SLES_12_SP1"),
-        OPENSUSE_LEAP_42_1("OPENSUSE_LEAP_42_1")
+        UBUNTU_SERVER_18_04_LTS("UBUNTU_SERVER_18_04_LTS"),
+        UBUNTU_SERVER_20_04_LTS("UBUNTU_SERVER_20_04_LTS"),
+        DEBIAN_9("DEBIAN_9"),
+        DEBIAN_10("DEBIAN_10"),
+        CENTOS_8_1("CENTOS_8_1"),
+        CENTOS_8_3("CENTOS_8_3"),
+        OPENSUSE_LEAP_15("OPENSUSE_LEAP_15"),
+        OPENSUSE_LEAP_15_1("OPENSUSE_LEAP_15_1"),
+        SLES_15("SLES_15"),
+        SLES_15_SP1("SLES_15_SP1"),
+        REDHAT_RHEL_8_2("REDHAT_RHEL_8_2"),
+        ORACLE_LINUX_8_1("ORACLE_LINUX_8_1")
 
         LinuxType(String value) {
             this.value=value
@@ -45,23 +52,44 @@ class AzureVmImageType {
 
             def image
             switch (value){
-                case "UBUNTU_SERVER_14_04_LTS":
-                    image = KnownLinuxVirtualMachineImage.UBUNTU_SERVER_14_04_LTS
-                    break
                 case "UBUNTU_SERVER_16_04_LTS":
                     image = KnownLinuxVirtualMachineImage.UBUNTU_SERVER_16_04_LTS
                     break
-                case "CENTOS_7_2":
-                    image = KnownLinuxVirtualMachineImage.CENTOS_7_2
+                case "UBUNTU_SERVER_18_04_LTS":
+                    image = KnownLinuxVirtualMachineImage.UBUNTU_SERVER_18_04_LTS
                     break
-                case "DEBIAN_8":
-                    image = KnownLinuxVirtualMachineImage.DEBIAN_8
+                case "UBUNTU_SERVER_20_04_LTS":
+                    image = KnownLinuxVirtualMachineImage.UBUNTU_SERVER_20_04_LTS
                     break
-                case "OPENSUSE_LEAP_42_1":
-                    image = KnownLinuxVirtualMachineImage.OPENSUSE_LEAP_42_1
+                case "DEBIAN_9":
+                    image = KnownLinuxVirtualMachineImage.DEBIAN_9
                     break
-                case "SLES_12_SP1":
-                    image = KnownLinuxVirtualMachineImage.SLES_12_SP1
+                case "DEBIAN_10":
+                    image = KnownLinuxVirtualMachineImage.DEBIAN_10
+                    break
+                case "CENTOS_8_1":
+                    image = KnownLinuxVirtualMachineImage.CENTOS_8_1
+                    break
+                case "CENTOS_8_3":
+                    image = KnownLinuxVirtualMachineImage.CENTOS_8_3
+                    break
+                case "OPENSUSE_LEAP_15":
+                    image = KnownLinuxVirtualMachineImage.OPENSUSE_LEAP_15
+                    break
+                case "OPENSUSE_LEAP_15_1":
+                    image = KnownLinuxVirtualMachineImage.OPENSUSE_LEAP_15_1
+                    break
+                case "SLES_15":
+                    image = KnownLinuxVirtualMachineImage.SLES_15
+                    break
+                case "SLES_15_SP1":
+                    image = KnownLinuxVirtualMachineImage.SLES_15_SP1
+                    break
+                case "REDHAT_RHEL_8_2":
+                    image = KnownLinuxVirtualMachineImage.REDHAT_RHEL_8_2
+                    break
+                case "ORACLE_LINUX_8_1":
+                    image = KnownLinuxVirtualMachineImage.ORACLE_LINUX_8_1
                     break
                 default:
                     null
@@ -74,11 +102,12 @@ class AzureVmImageType {
 
 
     enum WindowsType {
-        WINDOWS_SERVER_TECHNICAL_PREVIEW("WINDOWS_SERVER_TECHNICAL_PREVIEW"),
-        WINDOWS_SERVER_2016_TECHNICAL_PREVIEW_WITH_CONTAINERS("WINDOWS_SERVER_2016_TECHNICAL_PREVIEW_WITH_CONTAINERS"),
         WINDOWS_SERVER_2012_R2_DATACENTER("WINDOWS_SERVER_2012_R2_DATACENTER"),
-        WINDOWS_SERVER_2012_DATACENTER("WINDOWS_SERVER_2012_DATACENTER"),
-        WINDOWS_SERVER_2008_R2_SP1("WINDOWS_SERVER_2008_R2_SP1")
+        WINDOWS_SERVER_2016_DATACENTER("WINDOWS_SERVER_2016_DATACENTER"),
+        WINDOWS_SERVER_2019_DATACENTER("WINDOWS_SERVER_2019_DATACENTER"),
+        WINDOWS_SERVER_2019_DATACENTER_WITH_CONTAINERS("WINDOWS_SERVER_2019_DATACENTER_WITH_CONTAINERS"),
+        WINDOWS_DESKTOP_10_PRO("WINDOWS_DESKTOP_10_PRO"),
+        WINDOWS_DESKTOP_10_20H1_PRO("WINDOWS_DESKTOP_10_20H1_PRO")
 
         WindowsType(String value) {
             this.value=value
@@ -89,20 +118,23 @@ class AzureVmImageType {
 
             def image
             switch (value){
-                case "WINDOWS_SERVER_TECHNICAL_PREVIEW":
-                    image = KnownWindowsVirtualMachineImage.WINDOWS_SERVER_TECHNICAL_PREVIEW
-                    break
-                case "WINDOWS_SERVER_2016_TECHNICAL_PREVIEW_WITH_CONTAINERS":
-                    image = KnownWindowsVirtualMachineImage.WINDOWS_SERVER_2016_TECHNICAL_PREVIEW_WITH_CONTAINERS
-                    break
                 case "WINDOWS_SERVER_2012_R2_DATACENTER":
                     image = KnownWindowsVirtualMachineImage.WINDOWS_SERVER_2012_R2_DATACENTER
                     break
-                case "WINDOWS_SERVER_2012_DATACENTER":
-                    image = KnownWindowsVirtualMachineImage.WINDOWS_SERVER_2012_DATACENTER
+                case "WINDOWS_SERVER_2016_DATACENTER":
+                    image = KnownWindowsVirtualMachineImage.WINDOWS_SERVER_2016_DATACENTER
                     break
-                case "WINDOWS_SERVER_2008_R2_SP1":
-                    image = KnownWindowsVirtualMachineImage.WINDOWS_SERVER_2008_R2_SP1
+                case "WINDOWS_SERVER_2019_DATACENTER":
+                    image = KnownWindowsVirtualMachineImage.WINDOWS_SERVER_2019_DATACENTER
+                    break
+                case "WINDOWS_SERVER_2019_DATACENTER_WITH_CONTAINERS":
+                    image = KnownWindowsVirtualMachineImage.WINDOWS_SERVER_2019_DATACENTER_WITH_CONTAINERS
+                    break
+                case "WINDOWS_DESKTOP_10_PRO":
+                    image = KnownWindowsVirtualMachineImage.WINDOWS_DESKTOP_10_PRO
+                    break
+                case "WINDOWS_DESKTOP_10_20H1_PRO":
+                    image = KnownWindowsVirtualMachineImage.WINDOWS_DESKTOP_10_20H1_PRO
                     break
                 default:
                     null

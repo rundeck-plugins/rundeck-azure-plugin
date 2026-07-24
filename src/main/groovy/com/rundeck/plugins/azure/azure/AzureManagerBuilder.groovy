@@ -1,6 +1,6 @@
 package com.rundeck.plugins.azure.azure
 
-import com.microsoft.azure.management.resources.fluentcore.arm.Region
+import com.azure.core.management.Region
 
 /**
  * Created by luistoledo on 11/6/17.

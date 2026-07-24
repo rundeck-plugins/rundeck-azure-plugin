@@ -7,7 +7,7 @@ import com.dtolabs.rundeck.core.resources.format.ResourceFormatParser
 import com.dtolabs.rundeck.core.resources.format.ResourceFormatParserService
 import com.dtolabs.rundeck.core.storage.ResourceMeta
 import com.dtolabs.rundeck.core.storage.keys.KeyStorageTree
-import com.microsoft.azure.management.Azure
+import com.azure.resourcemanager.compute.ComputeManager
 import com.rundeck.plugins.azure.azure.AzureManager
 import com.rundeck.plugins.azure.azure.AzureNode
 import org.rundeck.app.spi.Services
@@ -23,7 +23,7 @@ class AzureResourceModelSourceSpec extends Specification{
         given:
 
         def azureManager = Mock(AzureManager)
-        def azure = GroovyMock(Azure)
+        def azure = GroovyMock(ComputeManager)
         azureManager.setAzure(azure)
 
         Properties configuration = [client:"client123",tenant:"tenant123",key:"key123",subscriptionId:"subscriptionId123"]
@@ -52,7 +52,7 @@ class AzureResourceModelSourceSpec extends Specification{
         given:
 
         def azureManager = Mock(AzureManager)
-        def azure = GroovyMock(Azure)
+        def azure = GroovyMock(ComputeManager)
         azureManager.setAzure(azure)
 
         Properties configuration = [client:"1234"]
@@ -77,7 +77,7 @@ class AzureResourceModelSourceSpec extends Specification{
         given:
 
         def azureManager = Mock(AzureManager)
-        def azure = GroovyMock(Azure)
+        def azure = GroovyMock(ComputeManager)
         azureManager.setAzure(azure)
         Services services = getServices()
 
@@ -97,7 +97,7 @@ class AzureResourceModelSourceSpec extends Specification{
         given:
 
         def azureManager = Mock(AzureManager)
-        def azure = GroovyMock(Azure)
+        def azure = GroovyMock(ComputeManager)
         azureManager.setAzure(azure)
         Services services = getServices()
 
@@ -118,7 +118,7 @@ class AzureResourceModelSourceSpec extends Specification{
         given:
 
         def azureManager = Mock(AzureManager)
-        def azure = GroovyMock(Azure)
+        def azure = GroovyMock(ComputeManager)
         azureManager.setAzure(azure)
 
         Services services = getServices()

@@ -5,9 +5,10 @@ import com.dtolabs.rundeck.core.plugins.configuration.StringRenderingConstants
 import com.dtolabs.rundeck.core.storage.ResourceMeta
 import com.dtolabs.rundeck.core.storage.StorageTree
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
-import com.microsoft.azure.management.compute.DataDisk
-import com.microsoft.azure.management.compute.VirtualMachine
-import com.microsoft.azure.management.compute.VirtualMachineExtension
+import com.azure.core.management.Region
+import com.azure.resourcemanager.compute.models.DataDisk
+import com.azure.resourcemanager.compute.models.VirtualMachine
+import com.azure.resourcemanager.compute.models.VirtualMachineExtension
 import com.rundeck.plugins.azure.plugin.AzureFailureReason
 import groovy.transform.CompileStatic
 
@@ -243,5 +244,21 @@ class AzurePluginUtil {
 
     static boolean isDirectory(String path) {
         return path.endsWith(FILE_SEPARATOR);
+    }
+
+    /**
+     * Track 2's {@code Region} only supports lookup by short name ({@code fromName}), not the
+     * label-or-name lookup Track 1's {@code Region.findByLabelOrName} provided. This restores that
+     * behavior so region values configured using either form (e.g. "East US" or "eastus") keep working.
+     */
+    static Region findRegionByLabelOrName(String labelOrName) {
+        if (isNotSet(labelOrName)) {
+            return null
+        }
+        Region byName = Region.values().find { it.name().equalsIgnoreCase(labelOrName) }
+        if (byName != null) {
+            return byName
+        }
+        return Region.values().find { it.label().equalsIgnoreCase(labelOrName) }
     }
 }

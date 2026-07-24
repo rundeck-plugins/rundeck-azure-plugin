@@ -1,15 +1,22 @@
 package com.rundeck.plugins.azure.azure
 
+import com.azure.core.credential.TokenCredential
+import com.azure.core.management.AzureEnvironment
+import com.azure.core.management.Region
+import com.azure.core.management.exception.ManagementException
+import com.azure.core.management.profile.AzureProfile
+import com.azure.identity.ClientCertificateCredentialBuilder
+import com.azure.identity.ClientSecretCredentialBuilder
+import com.azure.resourcemanager.compute.ComputeManager
+import com.azure.resourcemanager.compute.models.VirtualMachine
+import com.azure.resourcemanager.compute.models.VirtualMachineSize
+import com.azure.resourcemanager.resources.fluentcore.utils.ResourceManagerUtils
 import com.dtolabs.rundeck.core.resources.ResourceModelSourceException
-import com.microsoft.azure.AzureEnvironment
-import com.microsoft.azure.CloudException
-import com.microsoft.azure.credentials.ApplicationTokenCredentials
-import com.microsoft.azure.management.Azure
-import com.microsoft.azure.management.compute.VirtualMachine
-import com.microsoft.azure.management.compute.VirtualMachineSize
-import com.microsoft.azure.management.resources.fluentcore.arm.Region
-import com.microsoft.azure.management.resources.fluentcore.utils.SdkContext
 import com.rundeck.plugins.azure.util.AzurePluginUtil
+
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.stream.Collectors
 /**
  * Created by luistoledo on 11/6/17.
  */
@@ -30,28 +37,36 @@ class AzureManager {
     boolean debug
     boolean useAzureTags
 
-    Azure azure
+    ComputeManager azure
 
     AzureManager() {
     }
 
     //for test only
-    void setAzure(Azure azure) {
+    void setAzure(ComputeManager azure) {
         this.azure = azure
     }
 
-    Azure connect(){
-        ApplicationTokenCredentials credentials
+    ComputeManager connect(){
+        TokenCredential credential
+        AzureProfile profile = new AzureProfile(this.tenantId, this.subscriptionId, AzureEnvironment.AZURE)
 
         if(this.key!=null){
-            credentials = new ApplicationTokenCredentials(this.clientId, this.tenantId, this.key, AzureEnvironment.AZURE);
-            azure = Azure.authenticate(credentials).withSubscription(this.subscriptionId);
+            credential = new ClientSecretCredentialBuilder()
+                    .clientId(this.clientId)
+                    .tenantId(this.tenantId)
+                    .clientSecret(this.key)
+                    .build()
+            azure = ComputeManager.authenticate(credential, profile)
         }
 
         if(this.pfxCertificatePath!=null && this.pfxCertificatePassword!=null){
-            credentials = new ApplicationTokenCredentials(
-                    this.clientId, this.tenantId, this.pfxCertificatePath as byte[], this.pfxCertificatePassword, AzureEnvironment.AZURE);
-            azure = Azure.authenticate(credentials).withSubscription(subscriptionId);
+            credential = new ClientCertificateCredentialBuilder()
+                    .clientId(this.clientId)
+                    .tenantId(this.tenantId)
+                    .pfxCertificate(Files.newInputStream(Paths.get(this.pfxCertificatePath)), this.pfxCertificatePassword)
+                    .build()
+            azure = ComputeManager.authenticate(credential, profile)
         }
 
     }
@@ -64,13 +79,13 @@ class AzureManager {
         List<VirtualMachine> list = new LinkedList<>()
 
         if(resourceGroups.isEmpty()){
-            list.addAll(new ArrayList<>(vms.list()))
+            list.addAll(vms.list().stream().collect(Collectors.toList()))
         }else{
             StringBuilder errorMsgs = new StringBuilder()
             for(String rg : resourceGroups)
                 try{
-                    list.addAll(new ArrayList<>(vms.listByResourceGroup(rg)))
-                }catch(CloudException requestError){
+                    list.addAll(vms.listByResourceGroup(rg).stream().collect(Collectors.toList()))
+                }catch(ManagementException requestError){
                     errorMsgs.append("\n" + requestError.getLocalizedMessage())
                     if(debug){
                         println("Couldn't load machines for resource group '${rg}': " + requestError.getLocalizedMessage())
@@ -105,7 +120,6 @@ class AzureManager {
 
             VirtualMachineSize size = azure.virtualMachines().sizes().listByRegion(virtualMachine.region()).find{ size-> size.name().equals(virtualMachine.size().toString())}
 
-
             AzureNode azureNode = new AzureNode(virtualMachine,size, useAzureTags)
 
             if(debug){
@@ -125,7 +139,7 @@ class AzureManager {
         def vms = azure.virtualMachines()
 
         if(async){
-            vms.startAsync(resourceGroups[0],name).await()
+            vms.startAsync(resourceGroups[0],name).block()
         }else{
             vms.start(resourceGroups[0],name)
         }
@@ -138,7 +152,7 @@ class AzureManager {
         def vms = azure.virtualMachines()
 
         if(async) {
-            vms.powerOffAsync(resourceGroups[0], name).await()
+            vms.powerOffAsync(resourceGroups[0], name).block()
 
         }else{
             vms.powerOff(resourceGroups[0], name)
@@ -163,7 +177,7 @@ class AzureManager {
             rgDefinition = create.withExistingResourceGroup(vm.getResourceGroup())
         }
 
-        final String publicIPAddressLeafDNS1 = SdkContext.randomResourceName("pip1", 24)
+        final String publicIPAddressLeafDNS1 = new ResourceManagerUtils.InternalRuntimeContext().randomResourceName("pip1", 24)
 
         def azureVm
 
@@ -226,10 +240,5 @@ class AzureManager {
         AzurePluginUtil.printVm(newVm)
 
     }
-
-    static def getVmSizes(){
-
-    }
-
 
 }

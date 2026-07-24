@@ -2,17 +2,12 @@
 axionRelease = "1.21.2"
 groovy = "4.0.32"
 rundeckCore = "6.1.0-SNAPSHOT"
-azureSdk = "1.41.4"
-azureStorage = "8.6.6"
-azureKeyvaultCore = "1.2.6"
+azureResourceManagerCompute = "2.58.2"
+azureIdentity = "1.18.1"
+azureStorageBlob = "12.35.0"
 commonsIo = "2.22.0"
 commonsNet = "3.13.0"
 commonsLang3 = "3.20.0"
-okhttp = "4.12.0"
-retrofit = "2.12.0"
-nimbusJoseJwt = "9.48"
-oauth2OidcSdk = "11.38.2"
-jsonSmart = "2.6.0"
 junit = "4.13.2"
 spock = "2.3-groovy-4.0"
 bytebuddy = "1.18.11"
@@ -21,9 +16,9 @@ objenesis = "3.5"
 
 [libraries]
 rundeckCore = { group = "org.rundeck", name = "rundeck-core", version.ref = "rundeckCore" }
-azure = { group = "com.microsoft.azure", name = "azure", version.ref = "azureSdk" }
-azureStorage = { group = "com.microsoft.azure", name = "azure-storage", version.ref = "azureStorage" }
-azureKeyvaultCore = { group = "com.microsoft.azure", name = "azure-keyvault-core", version.ref = "azureKeyvaultCore" }
+azureResourceManagerCompute = { group = "com.azure.resourcemanager", name = "azure-resourcemanager-compute", version.ref = "azureResourceManagerCompute" }
+azureIdentity = { group = "com.azure", name = "azure-identity", version.ref = "azureIdentity" }
+azureStorageBlob = { group = "com.azure", name = "azure-storage-blob", version.ref = "azureStorageBlob" }
 
 groovyAll = { group = "org.apache.groovy", name = "groovy-all", version.ref = "groovy" }
 
@@ -31,11 +26,6 @@ groovyAll = { group = "org.apache.groovy", name = "groovy-all", version.ref = "g
 commonsIo = { group = "commons-io", name = "commons-io", version.ref = "commonsIo" }
 commonsNet = { group = "commons-net", name = "commons-net", version.ref = "commonsNet" }
 commonsLang3 = { group = "org.apache.commons", name = "commons-lang3", version.ref = "commonsLang3" }
-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
-retrofitAdapterRxjava = { group = "com.squareup.retrofit2", name = "adapter-rxjava", version.ref = "retrofit" }
-nimbusJoseJwt = { group = "com.nimbusds", name = "nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
-oauth2OidcSdk = { group = "com.nimbusds", name = "oauth2-oidc-sdk", version.ref = "oauth2OidcSdk" }
-jsonSmart = { group = "net.minidev", name = "json-smart", version.ref = "jsonSmart" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
