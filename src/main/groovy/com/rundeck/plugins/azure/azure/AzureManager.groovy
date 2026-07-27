@@ -10,7 +10,6 @@ import com.azure.identity.ClientSecretCredentialBuilder
 import com.azure.resourcemanager.compute.ComputeManager
 import com.azure.resourcemanager.compute.models.VirtualMachine
 import com.azure.resourcemanager.compute.models.VirtualMachineSize
-import com.azure.resourcemanager.resources.fluentcore.utils.ResourceManagerUtils
 import com.dtolabs.rundeck.core.resources.ResourceModelSourceException
 import com.rundeck.plugins.azure.util.AzurePluginUtil
 
@@ -61,14 +60,16 @@ class AzureManager {
         }
 
         if(this.pfxCertificatePath!=null && this.pfxCertificatePassword!=null){
+            byte[] pfxBytes = Files.readAllBytes(Paths.get(this.pfxCertificatePath))
             credential = new ClientCertificateCredentialBuilder()
                     .clientId(this.clientId)
                     .tenantId(this.tenantId)
-                    .pfxCertificate(Files.newInputStream(Paths.get(this.pfxCertificatePath)), this.pfxCertificatePassword)
+                    .pfxCertificate(new ByteArrayInputStream(pfxBytes), this.pfxCertificatePassword)
                     .build()
             azure = ComputeManager.authenticate(credential, profile)
         }
 
+        return azure
     }
 
     List<AzureNode> listVms(){
@@ -177,7 +178,7 @@ class AzureManager {
             rgDefinition = create.withExistingResourceGroup(vm.getResourceGroup())
         }
 
-        final String publicIPAddressLeafDNS1 = new ResourceManagerUtils.InternalRuntimeContext().randomResourceName("pip1", 24)
+        final String publicIPAddressLeafDNS1 = randomResourceName("pip1", 24)
 
         def azureVm
 
@@ -239,6 +240,17 @@ class AzureManager {
 
         AzurePluginUtil.printVm(newVm)
 
+    }
+
+    /**
+     * Generates a short random resource name with the given prefix, bounded to maxLen characters.
+     * Avoids depending on Azure SDK internal utility classes (e.g. ResourceManagerUtils.InternalRuntimeContext)
+     * that aren't part of the public API contract and may change without notice.
+     */
+    private static String randomResourceName(String prefix, int maxLen) {
+        String random = UUID.randomUUID().toString().replace("-", "")
+        int available = Math.max(0, maxLen - prefix.length())
+        return prefix + random.substring(0, Math.min(random.length(), available))
     }
 
 }

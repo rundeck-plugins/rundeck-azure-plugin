@@ -15,9 +15,11 @@ class AzureBlobStorageClientFactory {
             connectionString += ";${extraConnectionSettings}"
         }
 
+        // Azure Blob container names must be lowercase; normalize here so callers that don't
+        // already lowercase (e.g. list/delete/endpoint plugins) don't hit a surprising runtime failure.
         return new BlobContainerClientBuilder()
                 .connectionString(connectionString)
-                .containerName(containerName)
+                .containerName(containerName?.toLowerCase())
                 .buildClient()
     }
 }

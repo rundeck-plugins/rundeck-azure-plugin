@@ -71,7 +71,7 @@ class AzureStorageListStepPlugin implements StepPlugin, Describable {
         try{
             container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, "http")
         }catch(IllegalArgumentException e){
-            throw new IllegalArgumentException("Error getting the container Name");
+            throw new IllegalArgumentException("Error getting the container '${containerName}' for storage account '${storageName}': ${e.message}", e);
         }
 
         List list = new ArrayList()

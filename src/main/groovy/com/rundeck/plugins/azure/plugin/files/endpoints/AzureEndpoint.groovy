@@ -82,7 +82,9 @@ class AzureEndpoint {
                 tempFile=new File(tempFile.getAbsolutePath())
 
                 BlobClient blob = container.getBlobClient(fileName);
-                blob.upload(new FileInputStream(tempFile), tempFile.length());
+                new FileInputStream(tempFile).withCloseable { fis ->
+                    blob.upload(fis, tempFile.length());
+                }
 
                 tempFile.delete()
 
@@ -95,7 +97,9 @@ class AzureEndpoint {
                 BlobClient blob = container.getBlobClient(fileName);
 
                 tempFile = File.createTempFile("azure-transfer", "tmp", null);
-                blob.downloadStream(new FileOutputStream(tempFile))
+                new FileOutputStream(tempFile).withCloseable { fos ->
+                    blob.downloadStream(fos)
+                }
 
                 InputStream result = new BufferedInputStream(new FileInputStream(tempFile.getAbsolutePath()))
 

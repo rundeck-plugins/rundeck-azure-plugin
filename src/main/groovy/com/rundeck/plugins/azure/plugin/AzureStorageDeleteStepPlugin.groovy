@@ -65,14 +65,14 @@ class AzureStorageDeleteStepPlugin  implements StepPlugin, Describable {
         try{
             container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, "http")
         }catch(IllegalArgumentException e){
-            throw new IllegalArgumentException("Error getting the container Name");
+            throw new IllegalArgumentException("Error getting the container '${containerName}' for storage account '${storageName}': ${e.message}", e);
         }
 
         BlobClient blob=null
         try{
             blob = container.getBlobClient(path);
         }catch(IllegalArgumentException e){
-            throw new IllegalArgumentException("Error getting the blob");
+            throw new IllegalArgumentException("Error getting the blob at path '${path}' in container '${containerName}': ${e.message}", e);
         }
 
         blob.delete()
