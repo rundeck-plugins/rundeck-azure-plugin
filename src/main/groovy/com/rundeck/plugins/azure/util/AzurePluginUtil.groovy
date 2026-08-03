@@ -237,6 +237,27 @@ class AzurePluginUtil {
     }
 
 
+    static final String DEFAULT_ENDPOINT_PROTOCOL = "http"
+
+    /**
+     * Validates and normalizes an Azure storage connection string protocol value.
+     * Falls back to the default (for job definitions created before this option existed)
+     * and rejects anything other than exactly "http"/"https" to prevent extra
+     * connection-string settings being injected via this field.
+     */
+    static String normalizeEndpointProtocol(String protocol) {
+        if (isNotSet(protocol)) {
+            return DEFAULT_ENDPOINT_PROTOCOL
+        }
+        String normalized = protocol.trim().toLowerCase()
+        if (normalized != "http" && normalized != "https") {
+            throw new IllegalArgumentException(
+                "Invalid Endpoint Protocol '${protocol}': must be 'http' or 'https'"
+            )
+        }
+        return normalized
+    }
+
     static boolean hasWildcards(String path) {
         return path.matches(".*[?*]+.*");
     }

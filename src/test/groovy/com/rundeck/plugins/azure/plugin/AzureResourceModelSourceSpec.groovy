@@ -84,11 +84,13 @@ class AzureResourceModelSourceSpec extends Specification{
         Properties configuration = [client:"client123",tenant:"tenant123",key:"key123",subscriptionId:"subscriptionId123"]
 
         def azureResource = new AzureResourceModelSource(configuration, services)
+        azureResource.setAzureManager(azureManager)
 
         when:
         azureResource.getNodes()
 
         then:
+        1 * azureManager.listVms() >> { throw new RuntimeException("authentication failed") }
         thrown java.lang.RuntimeException
 
     }
