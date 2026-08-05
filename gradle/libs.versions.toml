@@ -1,7 +1,7 @@
 [versions]
-axionRelease = "1.21.2"
-groovy = "4.0.32"
-rundeckCore = "6.1.0-SNAPSHOT"
+axionRelease = "1.21.3"
+groovy = "4.0.33"
+rundeckCore = "6.1.0-20260803"
 azureSdk = "1.41.4"
 azureStorage = "8.6.6"
 azureKeyvaultCore = "1.2.6"
@@ -16,7 +16,7 @@ jsonSmart = "2.6.0"
 junit = "4.13.2"
 spock = "2.3-groovy-4.0"
 bytebuddy = "1.18.11"
-objenesis = "3.5"
+objenesis = "3.6"
 
 
 [libraries]
