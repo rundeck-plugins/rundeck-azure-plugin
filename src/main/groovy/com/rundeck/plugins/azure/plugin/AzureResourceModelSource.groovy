@@ -47,6 +47,7 @@ class AzureResourceModelSource  implements ResourceModelSource {
         String tagValue=configuration.getProperty(AzureResourceModelSourceFactory.TAG_VALUE)
         String extraMapping=configuration.getProperty(AzureResourceModelSourceFactory.EXTRA_MAPPING)
         boolean useAzureTags=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.USE_AZURE_TAGS))
+        boolean queryNodeInstancesInParallel=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.QUERY_NODE_INSTANCES_IN_PARALLEL))
         String keyStoragePath=configuration.getProperty(AzureResourceModelSourceFactory.KEY_STORAGE_PATH)
 
         List<String> resourceGroups = []
@@ -81,6 +82,7 @@ class AzureResourceModelSource  implements ResourceModelSource {
                     .tagValue(tagValue)
                     .debug(debug)
                     .useAzureTags(useAzureTags)
+                    .queryNodeInstancesInParallel(queryNodeInstancesInParallel)
                     .build()
         }
 

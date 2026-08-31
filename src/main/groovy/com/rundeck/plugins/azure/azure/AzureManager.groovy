@@ -10,10 +10,21 @@ import com.microsoft.azure.management.compute.VirtualMachineSize
 import com.microsoft.azure.management.resources.fluentcore.arm.Region
 import com.microsoft.azure.management.resources.fluentcore.utils.SdkContext
 import com.rundeck.plugins.azure.util.AzurePluginUtil
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 /**
  * Created by luistoledo on 11/6/17.
  */
 class AzureManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(AzureManager.class)
 
     String clientId
     String tenantId
@@ -29,6 +40,7 @@ class AzureManager {
     boolean onlyRunningInstances
     boolean debug
     boolean useAzureTags
+    boolean queryNodeInstancesInParallel
 
     Azure azure
 
@@ -96,27 +108,60 @@ class AzureManager {
 
         List<AzureNode> listNodes = new ArrayList<>()
 
-        list.each { virtualMachine->
-
-            if(debug){
-                println ("--------- VM input ---------------")
-                println(AzurePluginUtil.printVm(virtualMachine))
+        if(queryNodeInstancesInParallel && !list.isEmpty()){
+            ExecutorService executor = Executors.newFixedThreadPool(list.size())
+            try {
+                List<Callable<AzureNode>> tasks = list.collect { VirtualMachine virtualMachine ->
+                    { -> mapVirtualMachineToNode(virtualMachine) } as Callable<AzureNode>
+                }
+                logger.info("Querying {} virtual machines in parallel", list.size())
+                List<Future<AzureNode>> futures = executor.invokeAll(tasks)
+                for (Future<AzureNode> future : futures) {
+                    listNodes.add(future.get())
+                }
+                logger.info("Finished querying {} virtual machines in parallel", list.size())
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt()
+                throw new ResourceModelSourceException("Interrupted while querying virtual machines in parallel", e)
+            } catch (ExecutionException e) {
+                throw new ResourceModelSourceException("Failed to query virtual machines in parallel", e.getCause() ?: e)
+            } finally {
+                executor.shutdown()
+                try {
+                    if (!executor.awaitTermination(90, TimeUnit.SECONDS)) {
+                        logger.warn("Forcing shutdown of thread pool after waiting 90 seconds")
+                        executor.shutdownNow()
+                    }
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt()
+                    executor.shutdownNow()
+                }
             }
-
-            VirtualMachineSize size = azure.virtualMachines().sizes().listByRegion(virtualMachine.region()).find{ size-> size.name().equals(virtualMachine.size().toString())}
-
-
-            AzureNode azureNode = new AzureNode(virtualMachine,size, useAzureTags)
-
-            if(debug){
-                println ("--------- VM Mapping result ---------------")
-                println(azureNode)
+        }else{
+            list.each { VirtualMachine virtualMachine ->
+                listNodes.add(mapVirtualMachineToNode(virtualMachine))
             }
-
-            listNodes.add(azureNode)
         }
 
         return listNodes
+    }
+
+    private AzureNode mapVirtualMachineToNode(VirtualMachine virtualMachine){
+        if(debug){
+            println ("--------- VM input ---------------")
+            println(AzurePluginUtil.printVm(virtualMachine))
+        }
+
+        VirtualMachineSize size = azure.virtualMachines().sizes().listByRegion(virtualMachine.region()).find{ size-> size.name().equals(virtualMachine.size().toString())}
+
+        AzureNode azureNode = new AzureNode(virtualMachine,size, useAzureTags)
+
+        if(debug){
+            println ("--------- VM Mapping result ---------------")
+            println(azureNode)
+        }
+
+        return azureNode
     }
 
     void startVm(String name, boolean async){

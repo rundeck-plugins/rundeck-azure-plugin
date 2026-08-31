@@ -20,6 +20,7 @@ class AzureManagerBuilder {
     boolean onlyRunningInstances
     Region region
     boolean useAzureTags
+    boolean queryNodeInstancesInParallel
 
     boolean debug
 
@@ -110,6 +111,15 @@ class AzureManagerBuilder {
     }
 
     /**
+     * @param queryNodeInstancesInParallel query VM instances in parallel using a fixed thread pool
+     * @return this builder
+     */
+    AzureManagerBuilder queryNodeInstancesInParallel(boolean queryNodeInstancesInParallel){
+        this.queryNodeInstancesInParallel = queryNodeInstancesInParallel
+        return this
+    }
+
+    /**
      * @param region the region to filter machines
      * @return this builder
      */
@@ -161,6 +171,7 @@ class AzureManagerBuilder {
         azure.setTagName(this.tagName)
         azure.setTagValue(this.tagValue)
         azure.setUseAzureTags(this.useAzureTags)
+        azure.setQueryNodeInstancesInParallel(this.queryNodeInstancesInParallel)
 
         return azure
     }
