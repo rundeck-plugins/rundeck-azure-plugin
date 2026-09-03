@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit
 class AzureManager {
 
     private static final Logger logger = LoggerFactory.getLogger(AzureManager.class)
+    private static final int MAX_PARALLEL_QUERY_THREADS = 10
+    private static final long PARALLEL_QUERY_TIMEOUT_SECONDS = 120L
 
     String clientId
     String tenantId
@@ -109,14 +111,20 @@ class AzureManager {
         List<AzureNode> listNodes = new ArrayList<>()
 
         if(queryNodeInstancesInParallel && !list.isEmpty()){
-            ExecutorService executor = Executors.newFixedThreadPool(list.size())
+            int poolSize = Math.min(list.size(), MAX_PARALLEL_QUERY_THREADS)
+            ExecutorService executor = Executors.newFixedThreadPool(poolSize)
             try {
                 List<Callable<AzureNode>> tasks = list.collect { VirtualMachine virtualMachine ->
                     { -> mapVirtualMachineToNode(virtualMachine) } as Callable<AzureNode>
                 }
-                logger.info("Querying {} virtual machines in parallel", list.size())
-                List<Future<AzureNode>> futures = executor.invokeAll(tasks)
+                logger.info("Querying {} virtual machines in parallel using {} threads", list.size(), poolSize)
+                List<Future<AzureNode>> futures = executor.invokeAll(tasks, PARALLEL_QUERY_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 for (Future<AzureNode> future : futures) {
+                    if (future.isCancelled()) {
+                        throw new ResourceModelSourceException(
+                                "Timed out querying virtual machines in parallel after ${PARALLEL_QUERY_TIMEOUT_SECONDS} seconds"
+                        )
+                    }
                     listNodes.add(future.get())
                 }
                 logger.info("Finished querying {} virtual machines in parallel", list.size())
