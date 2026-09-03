@@ -33,9 +33,14 @@ class AzureResourceModelSource  implements ResourceModelSource {
         this.manager=manager
     }
 
-    @Override
-    INodeSet getNodes() throws ResourceModelSourceException {
-
+    /**
+     * Reads the plugin configuration and builds an {@link AzureManager} wired with its values.
+     * Extracted from {@link #getNodes()} so the configuration-to-builder wiring can be
+     * unit tested without invoking {@code listVms()}.
+     * @param configuration plugin configuration properties
+     * @return a configured AzureManager
+     */
+    AzureManager createManager(Properties configuration) {
         String clientId=configuration.getProperty(AzureResourceModelSourceFactory.CLIENT)
         String tenantId=configuration.getProperty(AzureResourceModelSourceFactory.TENANT)
         String subscriptionId=configuration.getProperty(AzureResourceModelSourceFactory.SUBSCRIPTION_ID)
@@ -45,8 +50,8 @@ class AzureResourceModelSource  implements ResourceModelSource {
         boolean onlyRunningInstances=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.RUNNING_ONLY))
         String tagName=configuration.getProperty(AzureResourceModelSourceFactory.TAG_NAME)
         String tagValue=configuration.getProperty(AzureResourceModelSourceFactory.TAG_VALUE)
-        String extraMapping=configuration.getProperty(AzureResourceModelSourceFactory.EXTRA_MAPPING)
         boolean useAzureTags=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.USE_AZURE_TAGS))
+        boolean queryNodeInstancesInParallel=Boolean.parseBoolean(configuration.getProperty(AzureResourceModelSourceFactory.QUERY_NODE_INSTANCES_IN_PARALLEL))
         String keyStoragePath=configuration.getProperty(AzureResourceModelSourceFactory.KEY_STORAGE_PATH)
 
         List<String> resourceGroups = []
@@ -67,21 +72,37 @@ class AzureResourceModelSource  implements ResourceModelSource {
             throw new IllegalArgumentException("You must set the key or the certificate path in order to authenticate");
         }
 
+        return AzureManagerBuilder.builder()
+                .clientId(clientId)
+                .tenantId(tenantId)
+                .subscriptionId(subscriptionId)
+                .key(key)
+                .pfxCertificatePath(pfxCertificatePath)
+                .pfxCertificatePassword(pfxCertificatePassword)
+                .resourceGroups(resourceGroups)
+                .onlyRunningInstances(onlyRunningInstances)
+                .tagName(tagName)
+                .tagValue(tagValue)
+                .debug(debug)
+                .useAzureTags(useAzureTags)
+                .queryNodeInstancesInParallel(queryNodeInstancesInParallel)
+                .build()
+    }
+
+    @Override
+    INodeSet getNodes() throws ResourceModelSourceException {
+
+        String extraMapping=configuration.getProperty(AzureResourceModelSourceFactory.EXTRA_MAPPING)
+        String key=configuration.getProperty(AzureResourceModelSourceFactory.KEY)
+        String pfxCertificatePath=configuration.getProperty(AzureResourceModelSourceFactory.PFX_CERTIFICATE_PATH)
+        String keyStoragePath=configuration.getProperty(AzureResourceModelSourceFactory.KEY_STORAGE_PATH)
+
+        if(key == null && pfxCertificatePath == null && keyStoragePath == null){
+            throw new IllegalArgumentException("You must set the key or the certificate path in order to authenticate");
+        }
+
         if(manager==null) {
-            manager = AzureManagerBuilder.builder()
-                    .clientId(clientId)
-                    .tenantId(tenantId)
-                    .subscriptionId(subscriptionId)
-                    .key(key)
-                    .pfxCertificatePath(pfxCertificatePath)
-                    .pfxCertificatePassword(pfxCertificatePassword)
-                    .resourceGroups(resourceGroups)
-                    .onlyRunningInstances(onlyRunningInstances)
-                    .tagName(tagName)
-                    .tagValue(tagValue)
-                    .debug(debug)
-                    .useAzureTags(useAzureTags)
-                    .build()
+            manager = createManager(configuration)
         }
 
         List<AzureNode> nodes = manager.listVms()
