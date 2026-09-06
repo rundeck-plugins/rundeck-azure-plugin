@@ -15,7 +15,7 @@ oauth2OidcSdk = "11.38.2"
 jsonSmart = "2.6.0"
 junit = "4.13.2"
 spock = "2.3-groovy-4.0"
-bytebuddy = "1.18.12"
+bytebuddy = "1.18.13"
 objenesis = "3.6"
 
 
