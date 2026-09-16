@@ -10,11 +10,11 @@ import com.rundeck.plugins.azure.plugin.files.URIParser
  * Created by luistoledo on 11/14/17.
  */
 class AzureEndpoint {
-    public static EndpointHandler createEndpointHandler(final URIParser url, String storageName, String accessKey) throws IOException {
+    public static EndpointHandler createEndpointHandler(final URIParser url, String storageName, String accessKey, String defaultEndpointProtocol) throws IOException {
 
         String containerName = url.getHost()
 
-        BlobContainerClient container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, "http")
+        BlobContainerClient container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, defaultEndpointProtocol)
         container.createIfNotExists()
 
         OutputStream outputStream=null

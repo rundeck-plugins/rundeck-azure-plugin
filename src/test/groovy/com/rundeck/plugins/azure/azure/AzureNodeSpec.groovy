@@ -2,6 +2,7 @@ package com.rundeck.plugins.azure.azure
 
 import com.azure.core.management.Region
 import com.azure.resourcemanager.compute.models.OSProfile
+import com.azure.resourcemanager.compute.models.OperatingSystemTypes
 import com.azure.resourcemanager.compute.models.PowerState
 import com.azure.resourcemanager.compute.models.StorageProfile
 import com.azure.resourcemanager.compute.models.VirtualMachine
@@ -9,8 +10,25 @@ import com.azure.resourcemanager.compute.models.VirtualMachineInstanceView
 import com.azure.resourcemanager.compute.models.VirtualMachineSize
 import com.azure.resourcemanager.compute.models.VirtualMachineSizeTypes
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class AzureNodeSpec extends Specification {
+
+    /**
+     * RUN-4820: osFamily must be normalized to Rundeck's canonical unix/windows
+     * values instead of the raw Azure SDK OperatingSystemTypes string.
+     */
+    @Unroll
+    def "mapOsFamily normalizes #osType to #expected"() {
+        expect:
+        AzureNode.mapOsFamily(osType) == expected
+
+        where:
+        osType                          | expected
+        OperatingSystemTypes.LINUX      | "unix"
+        OperatingSystemTypes.WINDOWS    | "windows"
+        null                            | null
+    }
 
     def "flattens Rundeck-Tags and Rundeck-* custom attributes but drops unrelated tags"() {
         given:

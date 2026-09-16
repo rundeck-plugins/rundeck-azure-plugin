@@ -50,6 +50,7 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
     public static final String TAG_VALUE = "tagValue"
     public static final String RUNNING_ONLY = "onlyRunningInstances"
     public static final String USE_AZURE_TAGS = "useAzureTags"
+    public static final String QUERY_NODE_INSTANCES_IN_PARALLEL = "queryNodeInstancesInParallel"
 
     public static final String DEBUG = "debugVm"
 
@@ -105,6 +106,9 @@ class AzureResourceModelSourceFactory implements ResourceModelSourceFactory,Desc
             false, "false", null,renderingOptionsConfig))
             .property(PropertyUtil.bool(USE_AZURE_TAGS, "Use Azure Tags",
                     "If this option is enabled, azure tags will be exporting as Rundeck node tags.",
+                    false, "false", null,renderingOptionsConfig))
+            .property(PropertyUtil.bool(QUERY_NODE_INSTANCES_IN_PARALLEL, "Query Node Instances in Parallel",
+                    "Query VM instances in parallel using a fixed thread pool. If false, instances will be queried one at a time.",
                     false, "false", null,renderingOptionsConfig))
             .build()
 

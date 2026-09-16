@@ -84,11 +84,13 @@ class AzureResourceModelSourceSpec extends Specification{
         Properties configuration = [client:"client123",tenant:"tenant123",key:"key123",subscriptionId:"subscriptionId123"]
 
         def azureResource = new AzureResourceModelSource(configuration, services)
+        azureResource.setAzureManager(azureManager)
 
         when:
         azureResource.getNodes()
 
         then:
+        1 * azureManager.listVms() >> { throw new RuntimeException("authentication failed") }
         thrown java.lang.RuntimeException
 
     }
@@ -144,6 +146,37 @@ class AzureResourceModelSourceSpec extends Specification{
 
     }
 
+
+    def "queryNodeInstancesInParallel property is read from configuration and passed to the AzureManager"(){
+        given:
+        Services services = getServices()
+        Properties configuration = [client:"client123",tenant:"tenant123",key:"key123",subscriptionId:"subscriptionId123",queryNodeInstancesInParallel:parallelFlag]
+        def azureResource = new AzureResourceModelSource(configuration, services)
+
+        when:
+        AzureManager manager = azureResource.createManager(configuration)
+
+        then:
+        manager.queryNodeInstancesInParallel == expected
+
+        where:
+        parallelFlag | expected
+        "true"       | true
+        "false"      | false
+    }
+
+    def "queryNodeInstancesInParallel defaults to false when not set"(){
+        given:
+        Services services = getServices()
+        Properties configuration = [client:"client123",tenant:"tenant123",key:"key123",subscriptionId:"subscriptionId123"]
+        def azureResource = new AzureResourceModelSource(configuration, services)
+
+        when:
+        AzureManager manager = azureResource.createManager(configuration)
+
+        then:
+        !manager.queryNodeInstancesInParallel
+    }
 
     Services getServices(){
         def storageTree = Mock(KeyStorageTree)

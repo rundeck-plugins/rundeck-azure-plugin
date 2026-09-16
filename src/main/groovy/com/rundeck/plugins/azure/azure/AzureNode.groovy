@@ -1,5 +1,6 @@
 package com.rundeck.plugins.azure.azure
 
+import com.azure.resourcemanager.compute.models.OperatingSystemTypes
 import com.azure.resourcemanager.compute.models.VirtualMachine
 import com.azure.resourcemanager.compute.models.VirtualMachineSize
 
@@ -50,7 +51,7 @@ class AzureNode {
             this.name = this.name
         }
 
-        this.osFamily = vm.storageProfile()?.osDisk()?.osType()?.toString()
+        this.osFamily = mapOsFamily(vm.storageProfile()?.osDisk()?.osType())
         this.osName = vm.storageProfile()?.imageReference()?.offer()?.toString()
         this.osVersion = vm.storageProfile()?.imageReference()?.sku()?.toString()
 
@@ -121,6 +122,20 @@ class AzureNode {
                 azureAttributes."provisioningState:time" = status.time()?.toString()
             }
         }
+    }
+
+    /**
+     * Normalizes Azure's {@link OperatingSystemTypes} (raw values "Windows"/"Linux") to
+     * Rundeck's canonical lowercase osFamily values ("windows"/"unix"), matching the
+     * convention used by other Node Resource plugins (EC2, Local, ServiceNow).
+     */
+    static String mapOsFamily(OperatingSystemTypes osType) {
+        if (osType == OperatingSystemTypes.WINDOWS) {
+            return "windows"
+        } else if (osType == OperatingSystemTypes.LINUX) {
+            return "unix"
+        }
+        return null
     }
 
     String getField(String name){

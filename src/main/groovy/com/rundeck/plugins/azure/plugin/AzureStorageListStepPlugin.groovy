@@ -31,6 +31,7 @@ class AzureStorageListStepPlugin implements StepPlugin, Describable {
     public static final String ACCESS_KEY = "key"
     public static final String CONTAINER_NAME = "containerName"
     public static final String RECURSIVE = "recursive"
+    public static final String DEFAULT_ENDPOINT_PROTOCOL = "defaultEndpointProtocol"
 
     final static Map<String, Object> renderingOptionsAuthentication = AzurePluginUtil.getRenderOpt("Credentials",false)
     final static Map<String, Object> renderingOptionsAuthenticationStorage = AzurePluginUtil.getRenderOpt("Credentials",false, false, true)
@@ -45,6 +46,8 @@ class AzureStorageListStepPlugin implements StepPlugin, Describable {
             null,null,null, renderingOptionsAuthentication))
             .property(PropertyUtil.string(ACCESS_KEY, "Access Key", "Azure Storage Access Key", true,
             null,null,null, renderingOptionsAuthenticationStorage))
+            .property(PropertyUtil.string(DEFAULT_ENDPOINT_PROTOCOL, "Endpoint Protocol", "Default Endpoint Protocol: http or https ", true,
+            "http", null, null, renderingOptionsAuthentication))
             .property(PropertyUtil.string(CONTAINER_NAME, "Container Name", "Container Name form the Azure Storage", false,
             null,null,null, renderingOptionsConfig))
             .property(PropertyUtil.bool(RECURSIVE, "Recursive", "Show content of subfolders", false,
@@ -64,12 +67,15 @@ class AzureStorageListStepPlugin implements StepPlugin, Describable {
         String accessKeyStoragePath=configuration.get(AzureStorageListStepPlugin.ACCESS_KEY)
         String containerName=configuration.get(AzureStorageListStepPlugin.CONTAINER_NAME)
         boolean recursive=Boolean.valueOf(configuration.get(AzureStorageListStepPlugin.RECURSIVE))
+        String defaultEndpointProtocol=AzurePluginUtil.normalizeEndpointProtocol(
+            configuration.get(AzureStorageListStepPlugin.DEFAULT_ENDPOINT_PROTOCOL) as String
+        )
 
         String accessKey = AzurePluginUtil.getPasswordFromKeyStorage(accessKeyStoragePath,context);
 
         BlobContainerClient container
         try{
-            container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, "http")
+            container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, defaultEndpointProtocol)
         }catch(IllegalArgumentException e){
             throw new IllegalArgumentException("Error getting the container '${containerName}' for storage account '${storageName}': ${e.message}", e);
         }

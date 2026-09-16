@@ -27,6 +27,7 @@ class AzureStorageDeleteStepPlugin  implements StepPlugin, Describable {
     public static final String ACCESS_KEY = "key"
     public static final String CONTAINER_NAME = "containerName"
     public static final String BLOB_PATH = "path"
+    public static final String DEFAULT_ENDPOINT_PROTOCOL = "defaultEndpointProtocol"
 
     final static Map<String, Object> renderingOptionsAuthentication = AzurePluginUtil.getRenderOpt("Credentials",false)
     final static Map<String, Object> renderingOptionsAuthenticationStorage = AzurePluginUtil.getRenderOpt("Credentials",false, false, true)
@@ -40,6 +41,8 @@ class AzureStorageDeleteStepPlugin  implements StepPlugin, Describable {
             null,null,null, renderingOptionsAuthentication))
             .property(PropertyUtil.string(ACCESS_KEY, "Access Key", "Azure Storage Access Key", true,
             null,null,null, renderingOptionsAuthenticationStorage))
+            .property(PropertyUtil.string(DEFAULT_ENDPOINT_PROTOCOL, "Endpoint Protocol", "Default Endpoint Protocol: http or https ", true,
+            "http", null, null, renderingOptionsAuthentication))
             .property(PropertyUtil.string(CONTAINER_NAME, "Container Name", "Container Name form the Azure Storage", false,
             null,null,null, renderingOptionsConfig))
             .property(PropertyUtil.string(BLOB_PATH, "Blob Path", "Blob Path. If the blob is on a subfolder, add the full path like `path/file.ext`", false,
@@ -57,13 +60,16 @@ class AzureStorageDeleteStepPlugin  implements StepPlugin, Describable {
         String accessKeyStoragePath=configuration.get(AzureStorageDeleteStepPlugin.ACCESS_KEY)
         String containerName=configuration.get(AzureStorageDeleteStepPlugin.CONTAINER_NAME)
         String path=configuration.get(AzureStorageDeleteStepPlugin.BLOB_PATH)
+        String defaultEndpointProtocol=AzurePluginUtil.normalizeEndpointProtocol(
+            configuration.get(AzureStorageDeleteStepPlugin.DEFAULT_ENDPOINT_PROTOCOL) as String
+        )
 
 
         String accessKey = AzurePluginUtil.getPasswordFromKeyStorage(accessKeyStoragePath,context);
 
         BlobContainerClient container
         try{
-            container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, "http")
+            container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, defaultEndpointProtocol)
         }catch(IllegalArgumentException e){
             throw new IllegalArgumentException("Error getting the container '${containerName}' for storage account '${storageName}': ${e.message}", e);
         }
