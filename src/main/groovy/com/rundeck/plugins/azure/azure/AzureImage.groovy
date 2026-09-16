@@ -1,6 +1,6 @@
 package com.rundeck.plugins.azure.azure
 
-import com.microsoft.azure.management.compute.ImageReference
+import com.azure.resourcemanager.compute.models.ImageReference
 
 /**
  * Created by luistoledo on 11/17/17.

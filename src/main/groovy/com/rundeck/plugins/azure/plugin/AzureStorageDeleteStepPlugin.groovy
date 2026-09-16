@@ -9,11 +9,9 @@ import com.dtolabs.rundeck.plugins.ServiceNameConstants
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
 import com.dtolabs.rundeck.plugins.step.StepPlugin
 import com.dtolabs.rundeck.plugins.util.DescriptionBuilder
-import com.microsoft.azure.storage.CloudStorageAccount
-import com.microsoft.azure.storage.StorageException
-import com.microsoft.azure.storage.blob.CloudBlobClient
-import com.microsoft.azure.storage.blob.CloudBlobContainer
-import com.microsoft.azure.storage.blob.CloudBlockBlob
+import com.azure.storage.blob.BlobClient
+import com.azure.storage.blob.BlobContainerClient
+import com.rundeck.plugins.azure.azure.AzureBlobStorageClientFactory
 import com.rundeck.plugins.azure.util.AzurePluginUtil
 
 /**
@@ -69,26 +67,22 @@ class AzureStorageDeleteStepPlugin  implements StepPlugin, Describable {
 
         String accessKey = AzurePluginUtil.getPasswordFromKeyStorage(accessKeyStoragePath,context);
 
-        String storageConnectionString = "DefaultEndpointsProtocol=" + defaultEndpointProtocol + ";AccountName=" + storageName + ";AccountKey=" + accessKey;
-
-        CloudStorageAccount account = CloudStorageAccount.parse(storageConnectionString);
-        CloudBlobClient serviceClient = account.createCloudBlobClient();
-        CloudBlobContainer container = null
+        BlobContainerClient container
         try{
-            container = serviceClient.getContainerReference(containerName)
-        }catch(URISyntaxException| StorageException e){
-            throw new IllegalArgumentException("Error getting the container Name");
+            container = AzureBlobStorageClientFactory.buildContainerClient(storageName, accessKey, containerName, defaultEndpointProtocol)
+        }catch(IllegalArgumentException e){
+            throw new IllegalArgumentException("Error getting the container '${containerName}' for storage account '${storageName}': ${e.message}", e);
         }
 
-        CloudBlockBlob blob=null
+        BlobClient blob=null
         try{
-            blob = container.getBlockBlobReference(path);
-        }catch(URISyntaxException| StorageException e){
-            throw new IllegalArgumentException("Error getting the blob");
+            blob = container.getBlobClient(path);
+        }catch(IllegalArgumentException e){
+            throw new IllegalArgumentException("Error getting the blob at path '${path}' in container '${containerName}': ${e.message}", e);
         }
 
         blob.delete()
 
-        println "Blob ${blob.getName()} deleted successfully"
+        println "Blob ${blob.getBlobName()} deleted successfully"
     }
 }

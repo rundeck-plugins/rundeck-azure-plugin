@@ -3,7 +3,7 @@ package com.rundeck.plugins.azure.plugin
 import com.dtolabs.rundeck.core.execution.ExecutionContext
 import com.dtolabs.rundeck.core.execution.ExecutionListener
 import com.dtolabs.rundeck.plugins.step.PluginStepContext
-import com.microsoft.azure.management.Azure
+import com.azure.resourcemanager.compute.ComputeManager
 import com.rundeck.plugins.azure.azure.AzureManager
 import com.rundeck.plugins.azure.azure.AzureNode
 import spock.lang.Specification
@@ -31,7 +31,7 @@ class AzureVmListPluginSpec extends Specification{
         given:
 
         def azureManager = Mock(AzureManager)
-        def azure = GroovyMock(Azure)
+        def azure = GroovyMock(ComputeManager)
         azureManager.setAzure(azure)
 
         def context = Mock(PluginStepContext)

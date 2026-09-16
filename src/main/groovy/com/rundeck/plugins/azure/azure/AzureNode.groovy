@@ -1,8 +1,8 @@
 package com.rundeck.plugins.azure.azure
 
-import com.microsoft.azure.management.compute.OperatingSystemTypes
-import com.microsoft.azure.management.compute.VirtualMachine
-import com.microsoft.azure.management.compute.VirtualMachineSize
+import com.azure.resourcemanager.compute.models.OperatingSystemTypes
+import com.azure.resourcemanager.compute.models.VirtualMachine
+import com.azure.resourcemanager.compute.models.VirtualMachineSize
 
 class AzureNode {
 
