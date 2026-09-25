@@ -12,11 +12,10 @@ import com.dtolabs.rundeck.plugins.descriptions.PluginDescription
 import com.dtolabs.rundeck.plugins.descriptions.PluginProperty
 import com.dtolabs.rundeck.plugins.descriptions.SelectValues
 import com.dtolabs.rundeck.plugins.logging.ExecutionFileStoragePlugin
-import com.microsoft.azure.management.resources.fluentcore.arm.models.HasManager
-import com.microsoft.azure.storage.CloudStorageAccount
-import com.microsoft.azure.storage.blob.CloudBlobClient
-import com.microsoft.azure.storage.blob.CloudBlobContainer
-import com.microsoft.azure.storage.blob.CloudBlockBlob
+import com.azure.storage.blob.BlobClient
+import com.azure.storage.blob.BlobContainerClient
+import com.azure.storage.blob.options.BlobParallelUploadOptions
+import com.rundeck.plugins.azure.azure.AzureBlobStorageClientFactory
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,8 +73,7 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     protected String containerName = null
 
     Map<String, ?> context;
-    CloudBlobClient serviceClient
-    CloudBlobContainer container
+    BlobContainerClient container
     String expandedPath;
 
     AzureFileStoragePlugin() {
@@ -115,19 +113,12 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
             throw new IllegalArgumentException("expanded value of path must not end with /");
         }
 
-        String storageConnectionString = "DefaultEndpointsProtocol="+defaultEndpointProtocol+";AccountName=" + this.storageAccount+ ";AccountKey=" + this.accessKey;
-
-        if(extraConnectionSettings){
-            storageConnectionString = storageConnectionString + ";" + extraConnectionSettings
-        }
-
-        CloudStorageAccount account = CloudStorageAccount.parse(storageConnectionString);
-        serviceClient = account.createCloudBlobClient();
-
         // Container name must be lower case.
         this.containerName = this.containerName ? this.containerName.toLowerCase() : expandedPath.substring(0,expandedPath.indexOf("/")).toLowerCase()
-        
-        container = serviceClient.getContainerReference(containerName)
+
+        container = AzureBlobStorageClientFactory.buildContainerClient(
+                this.storageAccount, this.accessKey, this.containerName, this.defaultEndpointProtocol, this.extraConnectionSettings
+        )
         container.createIfNotExists()
     }
 
@@ -142,11 +133,11 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     @Override
     boolean isAvailable(String filetype) throws ExecutionFileStorageException {
         try {
-            CloudBlockBlob blob = getBlobFile(filetype)
+            BlobClient blob = getBlobFile(filetype)
             if(blob==null){
                 return false
             }
-            return blob.exists()
+            return Boolean.TRUE.equals(blob.exists())
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage());
             logger.log(Level.FINE, e.getMessage(), e);
@@ -160,9 +151,8 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     boolean store(String filetype, InputStream stream, long length, Date lastModified) throws IOException, ExecutionFileStorageException {
 
         try {
-            CloudBlockBlob blob = getBlobFile(filetype)
-            blob.setMetadata(createObjectMetadata())
-            blob.upload(stream, length);
+            BlobClient blob = getBlobFile(filetype)
+            blob.uploadWithResponse(new BlobParallelUploadOptions(stream, length).setMetadata(createObjectMetadata()), null, null)
             return true
 
         } catch (Exception e) {
@@ -177,8 +167,8 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     @Override
     boolean retrieve(String filetype, OutputStream stream) throws IOException, ExecutionFileStorageException {
         try {
-            CloudBlockBlob blob = getBlobFile(filetype)
-            blob.download(stream)
+            BlobClient blob = getBlobFile(filetype)
+            blob.downloadStream(stream)
             return true
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage());
@@ -307,9 +297,9 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         this.path = path
     }
 
-    CloudBlockBlob getBlobFile(String fileType){
+    BlobClient getBlobFile(String fileType){
         String fileName=getFileName(fileType)
-        CloudBlockBlob blob = container.getBlockBlobReference(fileName);
+        BlobClient blob = container.getBlobClient(fileName);
 
         return blob
     }
