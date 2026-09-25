@@ -1,7 +1,7 @@
 [versions]
 axionRelease = "1.21.3"
 groovy = "4.0.33"
-rundeckCore = "6.1.0-20260803"
+rundeckCore = "6.2.0-20260908"
 azureSdk = "1.41.4"
 azureStorage = "8.6.6"
 azureKeyvaultCore = "1.2.6"
