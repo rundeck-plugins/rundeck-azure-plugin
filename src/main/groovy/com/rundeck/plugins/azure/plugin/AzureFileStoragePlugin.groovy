@@ -281,14 +281,15 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         return result;
     }
 
+    /**
+     * Blob name for the file type. For imported executions the expanded path is the stored
+     * `outputfilepath`, so this resolves to the same blob the original execution was written to.
+     *
+     * @param fileType file type extension
+     * @return blob name
+     */
     String getFileName(String fileType){
-        String fileName
-        if(isImportedExecution(this.context))
-            fileName = expandedPath.substring(expandedPath.indexOf("/"), expandedPath.length()).toLowerCase()
-        else
-            fileName = blobPath
-
-        return fileName + ".${fileType}"
+        return blobPath + ".${fileType}"
     }
 
     /**
@@ -302,6 +303,18 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         String executionId=context.get(META_EXECID)
         String project=context.get(META_PROJECT)
         return "${project}/${executionId}.${fileType}"
+    }
+
+    /**
+     * Blob name previous versions of the plugin used to read imported executions: the stored
+     * `outputfilepath` without its first segment, lower case.
+     * Kept so imported executions whose logs were stored by a previous version can still be retrieved.
+     *
+     * @param fileType file type extension
+     * @return legacy blob name for an imported execution
+     */
+    String getLegacyImportedFileName(String fileType){
+        return expandedPath.substring(expandedPath.indexOf("/")).toLowerCase() + ".${fileType}"
     }
 
 
@@ -344,7 +357,9 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     }
 
     /**
-     * Finds an existing blob for the file type, at the configured path or at the legacy location.
+     * Finds an existing blob for the file type, at the configured path or at the location used by
+     * previous versions of the plugin: the legacy project/execid location, or for imported executions
+     * the previous imported lookup.
      *
      * @param fileType file type extension
      * @return the existing blob, or null if it isn't stored in either location
@@ -354,11 +369,10 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         if (blob.exists()) {
             return blob
         }
-        if (isImportedExecution(this.context)) {
-            return null
-        }
-        String legacyFileName = getLegacyFileName(fileType)
-        if (legacyFileName == blob.getName()) {
+        String legacyFileName = isImportedExecution(this.context) ?
+                getLegacyImportedFileName(fileType) :
+                getLegacyFileName(fileType)
+        if (legacyFileName == getFileName(fileType)) {
             return null
         }
         CloudBlockBlob legacyBlob = container.getBlockBlobReference(legacyFileName)

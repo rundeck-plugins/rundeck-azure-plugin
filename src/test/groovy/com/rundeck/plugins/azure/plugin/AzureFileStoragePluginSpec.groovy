@@ -172,13 +172,16 @@ class AzureFileStoragePluginSpec  extends Specification{
         1 * blob.upload(stream, 3)
     }
 
-    def "legacy location is not checked for imported executions"(){
+    def "imported executions fall back to the previous imported lookup, not the legacy location"(){
         given:
         Map<String, Object> context = testContext()
         context.put("isRemoteFilePath", "true")
         context.put("outputfilepath", "project/otherproject/123")
         AzureFileStoragePlugin storage = pluginFor('project/${job.project}/${job.execid}', null, context)
         CloudBlockBlob blob = GroovyMock(CloudBlockBlob){
+            exists() >> false
+        }
+        CloudBlockBlob previousBlob = GroovyMock(CloudBlockBlob){
             exists() >> false
         }
         CloudBlobContainer container = GroovyMock(CloudBlobContainer)
@@ -189,8 +192,70 @@ class AzureFileStoragePluginSpec  extends Specification{
 
         then:
         result == null
-        1 * container.getBlockBlobReference("/otherproject/123.rdlog") >> blob
+        1 * container.getBlockBlobReference("otherproject/123.rdlog") >> blob
+        1 * container.getBlockBlobReference("/otherproject/123.rdlog") >> previousBlob
         0 * container.getBlockBlobReference("testproject/testexecid.rdlog")
+    }
+
+    def "log written by an execution is found after the execution is imported"(){
+        given: "an in-memory container shared by the original and the importing server"
+        Set<String> stored = []
+        CloudBlobContainer container = fakeContainer(stored)
+        Map<String, Object> context = testContext()
+        context.put("name", "MyJob")
+
+        and: "the original execution stores its log"
+        AzureFileStoragePlugin writer = pluginFor(path, containerName, context)
+        writer.container = container
+        writer.store("rdlog", new ByteArrayInputStream("log".bytes), 3, new Date())
+
+        and: "the execution is exported (outputfilepath = expanded path template) and imported"
+        Map<String, Object> importContext = testContext()
+        importContext.put("execid", "999")
+        importContext.put("isRemoteFilePath", "true")
+        importContext.put("outputfilepath", AzureFileStoragePlugin.expandPath(path, context))
+        AzureFileStoragePlugin reader = pluginFor(path, containerName, importContext)
+        reader.container = container
+
+        expect:
+        reader.containerName == writer.containerName
+        reader.findStoredBlobFile("rdlog")?.getName() == writer.getFileName("rdlog")
+
+        where:
+        path                                    | containerName
+        'project/${job.project}/${job.execid}'  | "rundeck-logs"
+        'project/${job.project}/${job.execid}'  | null
+        'logs/${job.name}/${job.execid}'        | null
+        '${job.name}/${job.execid}'             | "rundeck-logs"
+    }
+
+    def "imported execution still finds a log stored by a previous version"(){
+        given: "a previous version stored the log at project/execid in the configured container"
+        Set<String> stored = ["/testproject/123.rdlog"]
+        CloudBlobContainer container = fakeContainer(stored)
+        Map<String, Object> importContext = testContext()
+        importContext.put("isRemoteFilePath", "true")
+        importContext.put("outputfilepath", "project/testproject/123")
+        AzureFileStoragePlugin reader = pluginFor('project/${job.project}/${job.execid}', "rundeck-logs", importContext)
+        reader.container = container
+
+        expect:
+        reader.findStoredBlobFile("rdlog")?.getName() == "/testproject/123.rdlog"
+    }
+
+    /**
+     * In-memory container: blobs exist once uploaded or when listed in stored.
+     */
+    private CloudBlobContainer fakeContainer(Set<String> stored) {
+        GroovyMock(CloudBlobContainer) {
+            getBlockBlobReference(_ as String) >> { String name ->
+                GroovyMock(CloudBlockBlob) {
+                    getName() >> name
+                    exists() >> { stored.contains(name) }
+                    upload(_, _) >> { stored.add(name) }
+                }
+            }
+        }
     }
 
     private static AzureFileStoragePlugin pluginFor(String path, String containerName, Map<String, Object> context) {
