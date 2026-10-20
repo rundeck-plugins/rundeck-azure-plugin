@@ -69,7 +69,7 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
 
     @PluginProperty(
         title = "Container Name",
-        description = "(Optional) Define the container name where the logs will be saved. If not set, it'll be obtained from `path` property. Eg: If the path=\"project/\${job.project}/\${job.execid}\" then the containerName property will be \"project\""
+        description = "(Optional) Define the container name where the logs will be saved. If set, the whole expanded `path` is used as the blob name inside this container. If not set, the first segment of `path` is used as the container name and the rest as the blob name. Eg: If the path=\"project/\${job.project}/\${job.execid}\" then the container will be \"project\" and the blob \"<project>/<execid>.<ext>\""
     )
     protected String containerName = null
 
@@ -77,6 +77,10 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     CloudBlobClient serviceClient
     CloudBlobContainer container
     String expandedPath;
+    /**
+     * Expanded path of the log files inside the container, without the file type extension
+     */
+    String blobPath;
 
     AzureFileStoragePlugin() {
         super()
@@ -124,11 +128,27 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         CloudStorageAccount account = CloudStorageAccount.parse(storageConnectionString);
         serviceClient = account.createCloudBlobClient();
 
-        // Container name must be lower case.
-        this.containerName = this.containerName ? this.containerName.toLowerCase() : expandedPath.substring(0,expandedPath.indexOf("/")).toLowerCase()
-        
+        resolveContainerAndBlobPath()
+
         container = serviceClient.getContainerReference(containerName)
         container.createIfNotExists()
+    }
+
+    /**
+     * Resolves the container name and the blob path from the expanded path.
+     * If containerName is configured, the whole expanded path is the blob path,
+     * otherwise the first segment of the expanded path is the container name and the rest is the blob path.
+     */
+    protected void resolveContainerAndBlobPath() {
+        if (this.containerName) {
+            blobPath = expandedPath
+        } else {
+            int separator = expandedPath.indexOf("/")
+            this.containerName = expandedPath.substring(0, separator)
+            blobPath = expandedPath.substring(separator + 1)
+        }
+        // Container name must be lower case.
+        this.containerName = this.containerName.toLowerCase()
     }
 
     /**
@@ -142,11 +162,7 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     @Override
     boolean isAvailable(String filetype) throws ExecutionFileStorageException {
         try {
-            CloudBlockBlob blob = getBlobFile(filetype)
-            if(blob==null){
-                return false
-            }
-            return blob.exists()
+            return findStoredBlobFile(filetype) != null
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage());
             logger.log(Level.FINE, e.getMessage(), e);
@@ -177,7 +193,10 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
     @Override
     boolean retrieve(String filetype, OutputStream stream) throws IOException, ExecutionFileStorageException {
         try {
-            CloudBlockBlob blob = getBlobFile(filetype)
+            CloudBlockBlob blob = findStoredBlobFile(filetype)
+            if (blob == null) {
+                blob = getBlobFile(filetype)
+            }
             blob.download(stream)
             return true
         } catch (Exception e) {
@@ -262,17 +281,40 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         return result;
     }
 
+    /**
+     * Blob name for the file type. For imported executions the expanded path is the stored
+     * `outputfilepath`, so this resolves to the same blob the original execution was written to.
+     *
+     * @param fileType file type extension
+     * @return blob name
+     */
     String getFileName(String fileType){
-        String fileName
-        if(isImportedExecution(this.context))
-            fileName = expandedPath.substring(expandedPath.indexOf("/"), expandedPath.length()).toLowerCase()
-        else{
-            String executionId=context.get(META_EXECID)
-            String project=context.get(META_PROJECT)
-            fileName = "${project}/${executionId}"
-        }
+        return blobPath + ".${fileType}"
+    }
 
-        return fileName + ".${fileType}"
+    /**
+     * Blob name used by previous versions of the plugin, which ignored the configured path.
+     * Kept so log files stored before the path was honored can still be retrieved.
+     *
+     * @param fileType file type extension
+     * @return legacy blob name: project/execid.fileType
+     */
+    String getLegacyFileName(String fileType){
+        String executionId=context.get(META_EXECID)
+        String project=context.get(META_PROJECT)
+        return "${project}/${executionId}.${fileType}"
+    }
+
+    /**
+     * Blob name previous versions of the plugin used to read imported executions: the stored
+     * `outputfilepath` without its first segment, lower case.
+     * Kept so imported executions whose logs were stored by a previous version can still be retrieved.
+     *
+     * @param fileType file type extension
+     * @return legacy blob name for an imported execution
+     */
+    String getLegacyImportedFileName(String fileType){
+        return expandedPath.substring(expandedPath.indexOf("/")).toLowerCase() + ".${fileType}"
     }
 
 
@@ -312,6 +354,29 @@ class AzureFileStoragePlugin implements ExecutionFileStoragePlugin, ExecutionMul
         CloudBlockBlob blob = container.getBlockBlobReference(fileName);
 
         return blob
+    }
+
+    /**
+     * Finds an existing blob for the file type, at the configured path or at the location used by
+     * previous versions of the plugin: the legacy project/execid location, or for imported executions
+     * the previous imported lookup.
+     *
+     * @param fileType file type extension
+     * @return the existing blob, or null if it isn't stored in either location
+     */
+    CloudBlockBlob findStoredBlobFile(String fileType){
+        CloudBlockBlob blob = getBlobFile(fileType)
+        if (blob.exists()) {
+            return blob
+        }
+        String legacyFileName = isImportedExecution(this.context) ?
+                getLegacyImportedFileName(fileType) :
+                getLegacyFileName(fileType)
+        if (legacyFileName == getFileName(fileType)) {
+            return null
+        }
+        CloudBlockBlob legacyBlob = container.getBlockBlobReference(legacyFileName)
+        return legacyBlob.exists() ? legacyBlob : null
     }
 
     @Override
