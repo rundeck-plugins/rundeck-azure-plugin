@@ -146,7 +146,10 @@ To configure the Azure Storage Account credentials you can set these property va
      * `${job.id}` = job UUID (or blank).
      * `${job.group}` = job group (or blank).
      * `${job.name}` = job name (or blank)
-     
+
+    If **containerName** is not set, the first segment of the path is used as the container name and the rest of the path as the blob name. The file type extension (e.g. `.rdlog`) is appended to the blob name.
+
+* **containerName**: (Optional) The container where the logs are stored. If set, the whole expanded path is used as the blob name inside this container. Container names are converted to lower case, and the container is created if it doesn't exist.
 * **defaultEndpointProtocol**: Endpoint Protocol. Default Endpoint Protocol: http (default) or https
 * **extraConnectionSettings**: Extra connection settings, see https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string#store-a-connection-string
 
@@ -164,6 +167,10 @@ framework.plugin.ExecutionFileStorage.azure-storage.defaultEndpointProtocol=http
 framework.plugin.ExecutionFileStorage.azure-storage.path=logs/${job.project}/${job.execid}.log
 
 ```
+
+With this configuration the logs are stored in the `logs` container as `<project>/<execid>.log.rdlog`.
+
+Log files stored by plugin versions that ignored the configured path (stored as `<project>/<execid>.<ext>`) can still be retrieved after upgrading.
 
 
 ## Managing Azure VM
