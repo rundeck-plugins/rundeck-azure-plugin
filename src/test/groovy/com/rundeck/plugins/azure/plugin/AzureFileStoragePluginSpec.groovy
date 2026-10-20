@@ -1,6 +1,5 @@
 package com.rundeck.plugins.azure.plugin
 
-import com.microsoft.azure.storage.blob.CloudBlockBlob
 import spock.lang.Specification
 
 /**
@@ -27,7 +26,11 @@ class AzureFileStoragePluginSpec  extends Specification{
         println "<log storage invalid key>"
         given:
         AzureFileStoragePlugin storage = new AzureFileStoragePlugin()
-        storage.setAccessKey("accesssKeyTest")
+        // must not be valid Base64: azure-storage-blob's StorageSharedKeyCredential decodes the key
+        // eagerly at request-signing time (during createIfNotExists() in initialize()) and throws
+        // IllegalArgumentException for malformed Base64, rather than Track 1's synchronous
+        // java.security.InvalidKeyException thrown out of CloudStorageAccount.parse().
+        storage.setAccessKey("not-valid-base64!!!")
         storage.setStorageAccount(ACCOUNT_NAME_TEST)
         storage.setPath("project/\${job.project}/\${job.execid}")
 
@@ -35,7 +38,7 @@ class AzureFileStoragePluginSpec  extends Specification{
         storage.initialize(testContext())
 
         then:
-        thrown java.security.InvalidKeyException
+        thrown IllegalArgumentException
     }
 
     def "storage wrong path"(){

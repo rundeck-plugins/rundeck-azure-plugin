@@ -82,57 +82,21 @@ dependencies {
     implementation libs.commonsIo
     pluginLibs libs.commonsNet
 
-    pluginLibs(libs.azure) {
-        exclude group: "com.fasterxml.jackson.core"
-        exclude group: 'com.google.guava', module: 'guava'
-        exclude group: 'net.minidev', module: 'json-smart'
-    }
-    pluginLibs libs.jsonSmart
-    pluginLibs(libs.azureStorage) {
-        exclude group: "com.fasterxml.jackson.core"
+    pluginLibs(libs.azureResourceManagerCompute) {
         exclude group: 'com.google.guava', module: 'guava'
     }
-    pluginLibs(libs.azureKeyvaultCore) {
+    pluginLibs(libs.azureIdentity) {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+    pluginLibs(libs.azureStorageBlob) {
         exclude group: 'com.google.guava', module: 'guava'
     }
 
     testImplementation libs.bundles.testLibs
 
     constraints {
-        implementation(libs.retrofitAdapterRxjava) {
-            because "retrofit version by azure affected by CVE-2018-1000844"
-        }
-        implementation(libs.nimbusJoseJwt) {
-            because "CVE-2023-1370, CVE-2021-31684, CVE-2023-52428"
-        }
-        implementation(libs.oauth2OidcSdk) {
-            because "CVE-2023-1370 - upgrade to version that doesn't depend on vulnerable json-smart"
-        }
-        implementation(libs.jsonSmart) {
-            because "CVE-2023-1370 - upgrade from 2.4.2 to 2.5.2"
-        }
-        implementation(libs.okhttp) {
-            because "CVE-2023-3635"
-        }
         implementation(libs.commonsLang3) {
             because "CVE-2025-48924 - force transitive commons-lang3 from 3.8.1 to 3.18.0"
-        }
-        pluginLibs(libs.retrofitAdapterRxjava) {
-            because "retrofit version by azure affected by CVE-2018-1000844"
-        }
-        pluginLibs(libs.nimbusJoseJwt) {
-            because "CVE-2023-1370, CVE-2021-31684, CVE-2023-52428"
-        }
-        pluginLibs(libs.oauth2OidcSdk) {
-            because "CVE-2023-1370 - upgrade to version that doesn't depend on vulnerable json-smart"
-        }
-        pluginLibs(libs.jsonSmart) {
-            because "CVE-2023-1370 - upgrade from 2.4.2 to 2.5.2"
-        }
-        // Pins the version to avoid a dependency on okhttp 3.14.9 that suffers from the CVE.
-        // This version of okhttp is inline with the one used in Rundeck 5.9.x
-        pluginLibs(libs.okhttp) {
-            because "CVE-2023-3635"
         }
         pluginLibs(libs.commonsLang3) {
             because "CVE-2025-48924 - force transitive commons-lang3 from 3.8.1 to 3.18.0"

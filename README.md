@@ -1,6 +1,23 @@
 ## Rundeck Azure Plugin
 Azure Plugin integrates Rundeck with Azure Virtual Machines and Azure Storage. The plugin contains a Resource Model plugin,  an Execution Log Storage plugin, and others plugin steps like Create/Start/Stop Azure VMs. 
 
+### Azure SDK migration (Track 1 -> Track 2)
+
+This plugin was migrated off the deprecated `com.microsoft.azure:azure` / `com.microsoft.azure:azure-storage` SDKs
+(Microsoft ended support for these on 31-Mar-2023) onto the current Azure SDK for Java
+(`azure-resourcemanager` + `azure-identity` for compute/auth, `azure-storage-blob` for storage). Two behavior
+changes came with it:
+
+* **Known VM Image / VM Size lists were refreshed.** The `vmImageType` and `vmSizeType` dropdown values on the
+  "Create VM" step now reflect the current Azure SDK's known-image and known-size catalogs, replacing a long-stale
+  list (Ubuntu 14.04/16.04, Windows Server 2008 R2/2012, "Technical Preview" images, retired A/D-series sizes,
+  etc). If a saved job configuration references one of the old, now-removed `vmImageType` values, it will fail
+  property validation and needs to be updated to a currently-supported image name.
+* **The PFX certificate path (`pfxCertificatePath`) is now read as an actual file.** Previously the plugin treated
+  the configured path *string's characters* as the certificate bytes instead of reading the file at that path
+  (a latent bug). It now genuinely reads the PFX file from disk, so certificate-based authentication that
+  happened to work around the old bug should be re-verified.
+
 
 ## Install
 
